@@ -1,0 +1,2 @@
+# Kval
+Kvalifikācijas darbs
