@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "kval-darbs",
+    "slug": "kval-darbs",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "kval-darbs"
+}
