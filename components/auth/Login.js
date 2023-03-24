@@ -1,22 +1,23 @@
 import React, { Component } from "react";
 import { View, Button, TextInput } from "react-native";
 import firebase from "firebase/compat/app";
-export class Register extends Component {
+
+
+export class Login extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       email: "",
-      password: "",
-      name: "",
+      password: ""
     };
-    this.onSignUp = this.onSignUp.bind(this);
+    this.onSignIn = this.onSignIn.bind(this);
   }
 
   // Logs the output of the response from the api 
-  onSignUp() {
-    const { email, password, name } = this.state;
-    firebase.auth().createUserWithEmailAndPassword(email, password)
+  onSignIn() {
+    const { email, password } = this.state;
+    firebase.auth().signInWithEmailAndPassword(email, password)
     .then((results) => {
         console.log(results)
     })
@@ -25,14 +26,10 @@ export class Register extends Component {
     })
   }
 
-  // Registration form
+  // Sign in form
   render() {
     return (
       <View>
-        <TextInput
-          placeholder="name"
-          onChangeText={(name) => this.setState({ name })}
-        />
         <TextInput
           placeholder="email"
           onChangeText={(email) => this.setState({ email })}
@@ -43,10 +40,10 @@ export class Register extends Component {
           onChangeText={(password) => this.setState({ password })}
         />
 
-        <Button onPress={() => this.onSignUp()} title="Sign Up" />
+        <Button onPress={() => this.onSignIn()} title="Login" />
       </View>
     );
   }
 }
 
-export default Register;
+export default Login;
