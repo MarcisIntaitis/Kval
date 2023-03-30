@@ -13,16 +13,23 @@ export class Register extends Component {
     this.onSignUp = this.onSignUp.bind(this);
   }
 
-  // Logs the output of the response from the api 
+  // Logs the output of the response from the api
   onSignUp() {
     const { email, password, name } = this.state;
     firebase.auth().createUserWithEmailAndPassword(email, password)
-    .then((results) => {
-        console.log(results)
-    })
-    .catch((err) => {
-        console.log(err)
-    })
+
+      .then((results) => {
+        firebase.firestore().collection("users")
+          .doc(firebase.auth().currentUser.uid)
+          .set({
+            name,
+            email,
+          });
+        console.log(results);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   // Registration form

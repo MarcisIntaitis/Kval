@@ -7,3 +7,4 @@ Sociālo mediju aplikācija, kas ļaus lietotājiem augšupielādēt bildes, lai
 >- React
 >- Expo
 >- Firebase 
+>- Redux

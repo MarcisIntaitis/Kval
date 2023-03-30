@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Button, TextInput } from "react-native";
+import { View, Button, TextInput, StyleSheet } from "react-native";
 import firebase from "firebase/compat/app";
 
 
@@ -29,7 +29,7 @@ export class Login extends Component {
   // Sign in form
   render() {
     return (
-      <View>
+      <View style={styles.login}>
         <TextInput
           placeholder="email"
           onChangeText={(email) => this.setState({ email })}
@@ -45,5 +45,11 @@ export class Login extends Component {
     );
   }
 }
+
+const styles = StyleSheet.create({
+    login: {
+        maxWidth: '120px',
+    },
+});
 
 export default Login;
