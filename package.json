@@ -8,16 +8,23 @@
     "ios": "expo start --ios",
     "web": "expo start --web"
   },
+
+  
   "dependencies": {
     "@expo/webpack-config": "^18.0.1",
     "@react-navigation/bottom-tabs": "^6.5.7",
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/stack": "^6.3.16",
     "@reduxjs/toolkit": "^1.9.3",
+    "dotenv": "^16.0.3",
     "expo": "~48.0.9",
     "expo-status-bar": "~1.4.4",
     "firebase": "^9.18.0",
+    "fs": "0.0.1-security",
     "link": "^1.5.1",
+    "os": "^0.1.2",
+    "os-browserify": "^0.3.0",
+    "path": "^0.12.7",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "^0.71.4",
@@ -39,5 +46,11 @@
   "devDependencies": {
     "@babel/core": "^7.20.0"
   },
+  "browser": {
+  "fs": false,
+  "path": false,
+  "os": false
+  },
   "private": true
+  
 }

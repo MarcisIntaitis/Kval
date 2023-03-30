@@ -12,19 +12,29 @@ import LandingScreen from "./components/auth/Landing";
 import LoginScreen from "./components/auth/Login";
 import RegisterScreen from "./components/auth/Register";
 import MainScreen from "./components/Main";
+import AddScreen from "./components/main/Add";
 import rootReducer from "./redux/reducers";
+import {
+	API_KEY,
+	AUTH_DOMAIN,
+	PROJECT_ID,
+	STORAGE_BUCKET,
+	MESSAGING_SENDER_ID,
+	APP_ID,
+	MEASUREMENT_ID,
+} from "./config";
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
 // Firebase config info for connecting to the api
 const firebaseConfig = {
-	apiKey: "AIzaSyCYlkFfRksIVfMIKWo8ZyRMxynibwQPrT4",
-	authDomain: "mobapp-eeaa3.firebaseapp.com",
-	projectId: "mobapp-eeaa3",
-	storageBucket: "mobapp-eeaa3.appspot.com",
-	messagingSenderId: "659689891393",
-	appId: "1:659689891393:web:f7d67b078774ca776808c0",
-	measurementId: "G-MFT1T2MH91",
+	apiKey: API_KEY,
+	authDomain: AUTH_DOMAIN,
+	projectId: PROJECT_ID,
+	storageBucket: STORAGE_BUCKET,
+	messagingSenderId: MESSAGING_SENDER_ID,
+	appId: APP_ID,
+	measurementId: MEASUREMENT_ID,
 };
 
 if (firebase.apps.length === 0) {
@@ -91,6 +101,11 @@ export class App extends Component {
 							name="Main"
 							component={MainScreen}
 							options={{ headerShown: false }}
+						/>
+						<Stack.Screen
+							name="Add"
+							component={AddScreen}
+							options={{ headerShown: true }}
 						/>
 					</Stack.Navigator>
 				</NavigationContainer>
