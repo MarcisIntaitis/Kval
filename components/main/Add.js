@@ -1,9 +1,11 @@
 import { Camera } from "expo-camera";
 import { useState, useEffect } from "react";
-import { StyleSheet, Text, Button, View } from "react-native";
+import { StyleSheet, Text, Button, View, Image } from "react-native";
 
 export default function App() {
 	const [hasPermission, setHasPermission] = useState(null);
+	const [camera, setCamera] = useState(null);
+	const [image, setImage] = useState(null);
 	const [type, setType] = useState(Camera.Constants.Type.Back);
 
 	useEffect(() => {
@@ -12,6 +14,13 @@ export default function App() {
 			setHasPermission(status === "granted");
 		})();
 	}, []);
+
+	const takePicture = async () => {
+		if (camera) {
+			const data = await camera.takePictureAsync(null);
+			setImage(data.uri);
+		}
+	};
 
 	if (hasPermission === null) {
 		return <View />;
@@ -23,7 +32,12 @@ export default function App() {
 	return (
 		<View style={{ flex: 1 }}>
 			<View style={styles.camContainer}>
-				<Camera style={styles.fixedRatio} type={type} ratio={"1:1"} />
+				<Camera
+					style={styles.fixedRatio}
+					type={type}
+					ratio={"1:1"}
+					ref={(ref) => setCamera(ref)}
+				/>
 			</View>
 			<Button
 				title="Flip Camera"
@@ -35,6 +49,8 @@ export default function App() {
 					);
 				}}
 			></Button>
+			<Button title="Take Picture" onPress={() => takePicture()}></Button>
+			{image && <Image source={{ uri: image }} style={{ flex: 1 }} />}
 		</View>
 	);
 }
