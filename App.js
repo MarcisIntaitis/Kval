@@ -14,6 +14,8 @@ import RegisterScreen from "./components/auth/Register";
 import MainScreen from "./components/Main";
 import AddScreen from "./components/main/Add";
 import rootReducer from "./redux/reducers";
+import SaveScreen from "./components/main/Save";
+
 import {
 	API_KEY,
 	AUTH_DOMAIN,
@@ -106,7 +108,9 @@ export class App extends Component {
 							name="Add"
 							component={AddScreen}
 							options={{ headerShown: true }}
+							navigation={this.props.navigation}
 						/>
+						<Stack.Screen name="Save" component={SaveScreen} />
 					</Stack.Navigator>
 				</NavigationContainer>
 			</Provider>
