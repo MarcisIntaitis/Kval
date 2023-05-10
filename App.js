@@ -28,7 +28,7 @@ import {
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
-// Firebase config info for connecting to the api
+// Firebase config info for connecting to the api and so firebase works in general
 const firebaseConfig = {
 	apiKey: API_KEY,
 	authDomain: AUTH_DOMAIN,
@@ -81,7 +81,7 @@ export class App extends Component {
 		}
 		if (!loggedIn) {
 			return (
-				// Navigation between all of the screens
+				// Navigation between all of the screens (does not change the url of the page)
 				<NavigationContainer>
 					<Stack.Navigator initialRouteName="Landing">
 						<Stack.Screen

@@ -28,6 +28,7 @@ export default function Add({ navigation }) {
 		}
 	};
 
+	//adds gallery functionality to the app, all picked images (maybe later on videos) are with a fixed aspect ratio for ease of use
 	const pickImage = async () => {
 		let result = await ImagePicker.launchImageLibraryAsync({
 			mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -35,8 +36,6 @@ export default function Add({ navigation }) {
 			aspect: [1, 1],
 			quality: 1,
 		});
-
-		console.log(result);
 
 		if (!result.cancelled) {
 			setImage(result.uri);
@@ -50,6 +49,7 @@ export default function Add({ navigation }) {
 		return <Text>No access to camera</Text>;
 	}
 
+	//buttons for using the "add post" section
 	return (
 		<View style={{ flex: 1 }}>
 			<View style={styles.camContainer}>
