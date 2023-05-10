@@ -47,10 +47,6 @@ export class Login extends Component {
 	}
 }
 
-const styles = StyleSheet.create({
-	// login: {
-	// 	maxWidth: "400px",
-	// },
-});
+const styles = StyleSheet.create({});
 
 export default Login;

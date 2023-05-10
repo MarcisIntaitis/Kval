@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { fetchUser, fetchUserPosts } from "../redux/actions/index";
 import FeedScreen from "./main/Feed";
+import SearchScreen from "./main/Search";
 import ProfileScreen from "./main/Profile";
 
 const EmptyScreen = () => {
@@ -31,6 +32,15 @@ export class Main extends Component {
 					}}
 				/>
 				<Tab.Screen
+					name="Search"
+					component={SearchScreen}
+					options={{
+						tabBarIcon: ({ color, size }) => (
+							<MaterialCommunityIcons name="magnify" color={color} size={26} />
+						),
+					}}
+				/>
+				<Tab.Screen
 					name="AddContainer"
 					component={EmptyScreen}
 					listeners={({ navigation }) => ({
@@ -42,6 +52,16 @@ export class Main extends Component {
 					options={{
 						tabBarIcon: ({ color, size }) => (
 							<MaterialCommunityIcons name="plus-box" color={color} size={26} />
+						),
+					}}
+				/>
+
+				<Tab.Screen
+					name="Inbox"
+					component={EmptyScreen}
+					options={{
+						tabBarIcon: ({ color, size }) => (
+							<MaterialCommunityIcons name="message" color={color} size={26} />
 						),
 					}}
 				/>
