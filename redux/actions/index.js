@@ -1,5 +1,9 @@
 import firebase from "firebase/compat/app";
-import { USER_STATE_CHANGE, USER_POSTS_STATE_CHANGE } from "../constants/index";
+import {
+	USER_STATE_CHANGE,
+	USER_POSTS_STATE_CHANGE,
+	USER_FOLLOWING_STATE_CHANGE,
+} from "../constants/index";
 
 //makes a call to firestore and checks if snapshot exists if it does then its able to get the data from the database
 export function fetchUser() {
@@ -20,7 +24,7 @@ export function fetchUser() {
 	};
 }
 
-//makes the same call as the previous function but to posts and gets all of the posts in ascending order
+//same thing as the function above but with posts
 
 export function fetchUserPosts() {
 	return (dispatch) => {
@@ -41,6 +45,23 @@ export function fetchUserPosts() {
 					};
 				});
 				dispatch({ type: USER_POSTS_STATE_CHANGE, posts });
+			});
+	};
+}
+
+export function fetchUserFollowing() {
+	return (dispatch) => {
+		firebase
+			.firestore()
+			.collection("following")
+			.doc(firebase.auth().currentUser.uid)
+			.collection("userFollowing")
+			.onSnapshot((snapshot) => {
+				let following = snapshot.docs.map((doc) => {
+					const id = doc.id;
+					return id;
+				});
+				dispatch({ type: USER_FOLLOWING_STATE_CHANGE, following });
 			});
 	};
 }

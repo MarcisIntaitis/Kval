@@ -46,20 +46,29 @@ export default function Add({ navigation }) {
 		return <View />;
 	}
 	if (hasCameraPermission === false || hasGalleryPermission === false) {
-		return <Text>No access to camera</Text>;
+		return (
+			<View>
+				<Button title="Pick from gallery" onPress={() => pickImage()}></Button>
+				<Button
+					title="Save"
+					onPress={() => navigation.navigate("Save", { image })}
+				></Button>
+				{image && <Image source={{ uri: image }} style={styles.fixedRatio} />}
+			</View>
+		);
 	}
 
 	//buttons for using the "add post" section
 	return (
-		<View style={{ flex: 1 }}>
+		<View style={styles.mainContainer}>
 			<View style={styles.camContainer}>
 				<Camera
 					style={styles.fixedRatio}
 					type={type}
-					ratio={"1:1"}
 					ref={(ref) => setCamera(ref)}
 				/>
 			</View>
+			{image && <Image source={{ uri: image }} style={{ flex: 1 }} />}
 			<Button
 				title="Flip Camera"
 				onPress={() => {
@@ -76,17 +85,22 @@ export default function Add({ navigation }) {
 				title="Save"
 				onPress={() => navigation.navigate("Save", { image })}
 			></Button>
-			{image && <Image source={{ uri: image }} style={{ flex: 1 }} />}
 		</View>
 	);
 }
 
 const styles = StyleSheet.create({
+	mainContainer: {
+		flex: 1,
+		flexDirection: "column",
+	},
 	camContainer: {
+		width: "50%",
 		flex: 1,
 		flexDirection: "row",
 	},
 	fixedRatio: {
+		width: "50%",
 		flex: 1,
 		aspectRatio: 1,
 	},
