@@ -17,6 +17,6 @@ const styles = StyleSheet.create({
 	landingPage: {
 		flex: 1,
 		justifyContent: "center",
-		backgroundColor: "rgb(100, 100, 100)",
+		backgroundColor: "rgb(244, 241, 235)",
 	},
 });
