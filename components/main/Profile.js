@@ -77,6 +77,10 @@ function Profile(props) {
 			.delete();
 	};
 
+	const onLogout = () => {
+		firebase.auth().signOut();
+	};
+
 	//buffer so there are no errors in case user has not loaded yet (user.name might try to fetch null and the app just crashes)
 	if (user === null) {
 		return <View />;
@@ -85,7 +89,6 @@ function Profile(props) {
 		<View style={styles.container}>
 			<View style={styles.containerInfo}>
 				<Text>{user.name}</Text>
-				<Text>{user.email}</Text>
 
 				{props.route.params.uid !== firebase.auth().currentUser.uid ? (
 					<View>
@@ -95,7 +98,9 @@ function Profile(props) {
 							<Button title="Follow" onPress={() => onFollow()} />
 						)}
 					</View>
-				) : null}
+				) : (
+					<Button title="Logout" onPress={() => onLogout()} />
+				)}
 			</View>
 
 			<View style={styles.containerGallery}>

@@ -1,6 +1,7 @@
 import {
 	USERS_DATA_STATE_CHANGE,
 	USERS_POSTS_STATE_CHANGE,
+	CLEAR_DATA,
 } from "../constants";
 
 const initialState = {

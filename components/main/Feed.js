@@ -7,20 +7,18 @@ function Feed(props) {
 
 	useEffect(() => {
 		let posts = [];
-		console.log(props.users, props.following); // Add this line to check values
-		if (props.usersLoaded == props.following.length) {
-			for (let i = 0; i < props.following.length; i++) {
-				const user = props.users.find((el) => el.uid === props.following[i]);
-				if (user != undefined) {
-					posts = [...posts, ...user.posts];
-				}
+		for (let i = 0; i < props.users.length; i++) {
+			const user = props.users[i];
+			if (user != undefined) {
+				posts = [...posts, ...user.posts];
 			}
-			posts.sort(function (x, y) {
-				return x.creation - y.creation;
-			});
-			setPosts(posts);
 		}
+		posts.sort(function (x, y) {
+			return y.creation - x.creation;
+		});
+		setPosts(posts);
 	}, [props.usersLoaded]);
+
 	return (
 		<View style={styles.container}>
 			<View style={styles.container}>
@@ -32,6 +30,17 @@ function Feed(props) {
 						<View>
 							<Text>{item.user.name}</Text>
 							<Image style={styles.image} source={{ uri: item.downloadURL }} />
+							<Text>{item.caption}</Text>
+							<Text
+								onPress={() =>
+									props.navigation.navigate("Comment", {
+										postId: item.id,
+										uid: item.user.uid,
+									})
+								}
+							>
+								View Comments...
+							</Text>
 						</View>
 					)}
 				/>
@@ -59,7 +68,7 @@ const styles = StyleSheet.create({
 	},
 	image: {
 		flex: 1,
-		aspectRatio: 1 / 1,
+		aspectRatio: 1,
 	},
 	containerImage: {
 		flex: 1,

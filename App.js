@@ -15,6 +15,7 @@ import MainScreen from "./components/Main";
 import AddScreen from "./components/main/Add";
 import rootReducer from "./redux/reducers";
 import SaveScreen from "./components/main/Save";
+import CommentScreen from "./components/main/Comment";
 
 import {
 	API_KEY,
@@ -111,6 +112,7 @@ export class App extends Component {
 							navigation={this.props.navigation}
 						/>
 						<Stack.Screen name="Save" component={SaveScreen} />
+						<Stack.Screen name="Comment" component={CommentScreen} />
 					</Stack.Navigator>
 				</NavigationContainer>
 			</Provider>

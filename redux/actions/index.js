@@ -103,7 +103,7 @@ export function fetchUsersFollowingPosts(uid) {
 			.get()
 			.then((snapshot) => {
 				//goes to the path since the async function jumps ahead and cant keep track of the uid
-				const uid = snapshot.docs[0].ref.path.split("/")[1];
+				const uid = snapshot._delegate.query._query.path.segments[1];
 				const user = getState().usersState.users.find((el) => el.uid === uid);
 
 				let posts = snapshot.docs.map((doc) => {
