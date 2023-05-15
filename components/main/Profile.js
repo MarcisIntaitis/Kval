@@ -13,7 +13,6 @@ function Profile(props) {
 	//fetches different user posts and profile info to display
 	useEffect(() => {
 		const { currentUser, posts } = props;
-		console.log(currentUser, posts);
 
 		if (props.route.params.uid === firebase.auth().currentUser.uid) {
 			setUser(currentUser);
