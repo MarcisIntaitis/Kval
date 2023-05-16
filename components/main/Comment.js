@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Button, FlatList } from "react-native";
+import {
+	StyleSheet,
+	Text,
+	View,
+	Button,
+	FlatList,
+	TextInput,
+} from "react-native";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
-import { TextInput } from "react-native-paper";
 
 export default function Comment(props) {
 	const [comments, setComments] = useState([]);
@@ -43,6 +49,19 @@ export default function Comment(props) {
 			.add({ creator: firebase.auth().currentUser.uid, text });
 	};
 
+	const onDeleteComment = (commentId) => {
+		// Receive commentId as a parameter
+		firebase
+			.firestore()
+			.collection("posts")
+			.doc(props.route.params.uid)
+			.collection("userPosts")
+			.doc(props.route.params.postId)
+			.collection("comments")
+			.doc(commentId)
+			.delete();
+	};
+
 	return (
 		<View>
 			<FlatList
@@ -52,6 +71,17 @@ export default function Comment(props) {
 				renderItem={({ item }) => (
 					<View>
 						<Text>{item.text}</Text>
+						{item.creator === firebase.auth().currentUser.uid ? (
+							<View>
+								<Button
+									title="Delete"
+									onPress={() => onDeleteComment(item.id)} // Pass the comment ID to onDeleteComment
+								/>
+								<View />
+							</View>
+						) : (
+							<View />
+						)}
 					</View>
 				)}
 			/>

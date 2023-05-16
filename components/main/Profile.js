@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Image, FlatList, Button } from "react-native";
+import {
+	StyleSheet,
+	Text,
+	View,
+	Image,
+	FlatList,
+	Button,
+	TouchableOpacity,
+} from "react-native";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
@@ -110,7 +118,19 @@ function Profile(props) {
 					data={userPosts}
 					renderItem={({ item }) => (
 						<View style={styles.containerImage}>
-							<Image style={styles.image} source={{ uri: item.downloadURL }} />
+							<TouchableOpacity
+								onPress={() =>
+									props.navigation.navigate("Post", {
+										postId: item.id,
+										uid: props.route.params.uid,
+									})
+								}
+							>
+								<Image
+									style={styles.image}
+									source={{ uri: item.downloadURL }}
+								/>
+							</TouchableOpacity>
 						</View>
 					)}
 				/>

@@ -16,6 +16,7 @@ import AddScreen from "./components/main/Add";
 import rootReducer from "./redux/reducers";
 import SaveScreen from "./components/main/Save";
 import CommentScreen from "./components/main/Comment";
+import FullscreenPictureScreen from "./components/main/FullscreenPicture";
 
 import {
 	API_KEY,
@@ -103,7 +104,7 @@ export class App extends Component {
 						<Stack.Screen
 							name="Main"
 							component={MainScreen}
-							options={{ headerShown: true }}
+							options={{ headerShown: false }}
 						/>
 						<Stack.Screen
 							name="Add"
@@ -113,6 +114,7 @@ export class App extends Component {
 						/>
 						<Stack.Screen name="Save" component={SaveScreen} />
 						<Stack.Screen name="Comment" component={CommentScreen} />
+						<Stack.Screen name="Post" component={FullscreenPictureScreen} />
 					</Stack.Navigator>
 				</NavigationContainer>
 			</Provider>
