@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { fetchUsersData } from "../../redux/actions/index";
+
 import {
 	StyleSheet,
 	Text,
@@ -11,12 +15,33 @@ import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
 
-export default function Comment(props) {
+function Comment(props) {
 	const [comments, setComments] = useState([]);
 	const [postId, setPostId] = useState("");
 	const [text, setText] = useState("");
 
 	useEffect(() => {
+		const matchUserToComment = (comments) => {
+			if (props.users === undefined) {
+				// Handle the case when props.users is undefined
+				return;
+			}
+
+			for (let i = 0; i < comments.length; i++) {
+				if (comments[i].hasOwnProperty("user")) {
+					continue;
+				}
+
+				const user = props.users.find((x) => x.uid === comments[i].creator);
+				if (user === undefined) {
+					props.fetchUsersData(comments[i].creator, false);
+				} else {
+					comments[i].user = user;
+				}
+			}
+			setComments(comments);
+		};
+
 		if (props.route.params.postId !== postId) {
 			firebase
 				.firestore()
@@ -32,11 +57,13 @@ export default function Comment(props) {
 						const id = doc.id;
 						return { id, ...data };
 					});
-					setComments(comments);
+					matchUserToComment(comments);
 				});
 			setPostId(props.route.params.postId);
+		} else {
+			matchUserToComment(comments);
 		}
-	}, [props.route.params.postId]);
+	}, [props.route.params.postId, props.users]);
 
 	const onCommentSend = () => {
 		firebase
@@ -50,7 +77,6 @@ export default function Comment(props) {
 	};
 
 	const onDeleteComment = (commentId) => {
-		// Receive commentId as a parameter
 		firebase
 			.firestore()
 			.collection("posts")
@@ -70,18 +96,17 @@ export default function Comment(props) {
 				data={comments}
 				renderItem={({ item }) => (
 					<View>
+						{item.user !== undefined ? <Text>{item.user.name}</Text> : null}
 						<Text>{item.text}</Text>
 						{item.creator === firebase.auth().currentUser.uid ? (
 							<View>
 								<Button
 									title="Delete"
-									onPress={() => onDeleteComment(item.id)} // Pass the comment ID to onDeleteComment
+									onPress={() => onDeleteComment(item.id)}
 								/>
 								<View />
 							</View>
-						) : (
-							<View />
-						)}
+						) : null}
 					</View>
 				)}
 			/>
@@ -96,3 +121,12 @@ export default function Comment(props) {
 		</View>
 	);
 }
+
+const mapStateToProps = (store) => ({
+	users: store.usersState.users,
+});
+
+const mapDispatchToProps = (dispatch) =>
+	bindActionCreators({ fetchUsersData }, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(Comment);

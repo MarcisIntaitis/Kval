@@ -6,18 +6,24 @@ function Feed(props) {
 	const [posts, setPosts] = useState([]);
 
 	useEffect(() => {
-		let posts = [];
-		for (let i = 0; i < props.users.length; i++) {
-			const user = props.users[i];
-			if (user != undefined) {
-				posts = [...posts, ...user.posts];
+		if (
+			props.usersFollowingLoaded === props.following.length &&
+			props.following.length !== 0
+		) {
+			let posts = [];
+			for (let i = 0; i < props.users.length; i++) {
+				const user = props.users[i];
+				if (user && user.posts && Array.isArray(user.posts)) {
+					posts = [...posts, ...user.posts];
+				}
 			}
+			posts.sort(function (x, y) {
+				return y.creation.toDate() - x.creation.toDate();
+			});
+			setPosts(posts);
 		}
-		posts.sort(function (x, y) {
-			return y.creation - x.creation;
-		});
-		setPosts(posts);
-	}, [props.usersLoaded]);
+		props.navigation.setParams({ param: "value" });
+	}, [props.usersFollowingLoaded, props.following, props.users]);
 
 	return (
 		<View style={styles.container}>
@@ -28,7 +34,7 @@ function Feed(props) {
 					data={posts}
 					renderItem={({ item }) => (
 						<View>
-							<Text>{item.user.name}</Text>
+							<Text>{item.user && item.user.name}</Text>
 							<Image style={styles.image} source={{ uri: item.downloadURL }} />
 							<Text>{item.caption}</Text>
 							<Text
@@ -53,8 +59,7 @@ const mapStateToProps = (store) => ({
 	currentUser: store.userState.currentUser,
 	following: store.userState.following,
 	users: store.usersState.users,
-	usersLoaded: store.usersState.users.filter((user) => user.posts.length > 0)
-		.length,
+	usersFollowingLoaded: store.usersState.usersFollowingLoaded,
 });
 
 export default connect(mapStateToProps, null)(Feed);

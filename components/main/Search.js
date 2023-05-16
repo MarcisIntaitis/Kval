@@ -7,8 +7,10 @@ import "firebase/compat/storage";
 import { TextInput } from "react-native-paper";
 
 export default function Search(props) {
-	const [users, setUsers] = useState();
-	const fetchUsers = (search) => {
+	const [users, setUsers] = useState([]);
+	const [search, setSearch] = useState("");
+
+	const fetchUsers = () => {
 		firebase
 			.firestore()
 			.collection("users")
@@ -23,11 +25,14 @@ export default function Search(props) {
 				setUsers(users);
 			});
 	};
+
 	return (
 		<View>
 			<TextInput
 				placeholder={"Search..."}
-				onChangeText={(search) => fetchUsers(search)}
+				value={search}
+				onChangeText={(text) => setSearch(text)}
+				onChange={fetchUsers}
 			/>
 			<FlatList
 				numColumns={1}

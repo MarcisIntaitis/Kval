@@ -104,7 +104,7 @@ export class App extends Component {
 						<Stack.Screen
 							name="Main"
 							component={MainScreen}
-							options={{ headerShown: false }}
+							options={{ headerShown: true }}
 						/>
 						<Stack.Screen
 							name="Add"
