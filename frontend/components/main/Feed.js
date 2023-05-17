@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Image, FlatList } from "react-native";
+import { StyleSheet, Text, View, Image, FlatList, Button } from "react-native";
 import { connect } from "react-redux";
+import firebase from "firebase/compat/app";
 
 function Feed(props) {
 	const [posts, setPosts] = useState([]);
@@ -10,20 +11,36 @@ function Feed(props) {
 			props.usersFollowingLoaded === props.following.length &&
 			props.following.length !== 0
 		) {
-			let posts = [];
-			for (let i = 0; i < props.users.length; i++) {
-				const user = props.users[i];
-				if (user && user.posts && Array.isArray(user.posts)) {
-					posts = [...posts, ...user.posts];
-				}
-			}
-			posts.sort(function (x, y) {
-				return y.creation.toDate() - x.creation.toDate();
+			props.feed.sort(function (x, y) {
+				return y.creation - x.creation;
 			});
-			setPosts(posts);
+			setPosts(props.feed);
 		}
-		props.navigation.setParams({ param: "value" });
-	}, [props.usersFollowingLoaded, props.following, props.users]);
+	}, [props.usersFollowingLoaded, props.feed]);
+
+	const onLikePress = (userId, postId) => {
+		firebase
+			.firestore()
+			.collection("posts")
+			.doc(userId)
+			.collection("userPosts")
+			.doc(postId)
+			.collection("likes")
+			.doc(firebase.auth().currentUser.uid)
+			.set({});
+	};
+
+	const onDislikePress = (userId, postId) => {
+		firebase
+			.firestore()
+			.collection("posts")
+			.doc(userId)
+			.collection("userPosts")
+			.doc(postId)
+			.collection("likes")
+			.doc(firebase.auth().currentUser.uid)
+			.delete();
+	};
 
 	return (
 		<View style={styles.container}>
@@ -36,6 +53,17 @@ function Feed(props) {
 						<View>
 							<Text>{item.user && item.user.name}</Text>
 							<Image style={styles.image} source={{ uri: item.downloadURL }} />
+							{item.currentUserLike ? (
+								<Button
+									title="dislike"
+									onPress={() => onDislikePress(item.user.uid, item.id)}
+								/>
+							) : (
+								<Button
+									title="like"
+									onPress={() => onLikePress(item.user.uid, item.id)}
+								/>
+							)}
 							<Text>{item.caption}</Text>
 							<Text
 								onPress={() =>
@@ -58,7 +86,7 @@ function Feed(props) {
 const mapStateToProps = (store) => ({
 	currentUser: store.userState.currentUser,
 	following: store.userState.following,
-	users: store.usersState.users,
+	feed: store.usersState.feed,
 	usersFollowingLoaded: store.usersState.usersFollowingLoaded,
 });
 

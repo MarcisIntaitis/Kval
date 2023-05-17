@@ -8,15 +8,15 @@ import { Text, View } from "react-native";
 import { Provider } from "react-redux";
 import { applyMiddleware, legacy_createStore as createStore } from "redux";
 import thunk from "redux-thunk";
-import LandingScreen from "./components/auth/Landing";
-import LoginScreen from "./components/auth/Login";
-import RegisterScreen from "./components/auth/Register";
-import MainScreen from "./components/Main";
-import AddScreen from "./components/main/Add";
-import rootReducer from "./redux/reducers";
-import SaveScreen from "./components/main/Save";
-import CommentScreen from "./components/main/Comment";
-import FullscreenPictureScreen from "./components/main/FullscreenPicture";
+import LandingScreen from "./frontend/components/auth/Landing";
+import LoginScreen from "./frontend/components/auth/Login";
+import RegisterScreen from "./frontend/components/auth/Register";
+import MainScreen from "./frontend/components/Main";
+import AddScreen from "./frontend/components/main/Add";
+import rootReducer from "./frontend/redux/reducers";
+import SaveScreen from "./frontend/components/main/Save";
+import CommentScreen from "./frontend/components/main/Comment";
+import FullscreenPictureScreen from "./frontend/components/main/FullscreenPicture";
 
 import {
 	API_KEY,
