@@ -68,8 +68,8 @@ function Feed(props) {
 				<TouchableOpacity
 					onPress={() => {
 						item.currentUserLike
-							? onDislikePress(item.user.uid, item.id)
-							: onLikePress(item.user.uid, item.id);
+							? onDislikePress(item.user.uid, item.id, (item.likesCount -= 1))
+							: onLikePress(item.user.uid, item.id, (item.likesCount += 1));
 					}}
 				>
 					<MaterialCommunityIcons

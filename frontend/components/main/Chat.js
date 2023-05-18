@@ -23,7 +23,7 @@ const Chat = () => {
 	return <ChatRoom />;
 };
 
-function ChatRoom() {
+function ChatRoom(props) {
 	const dummy = useRef();
 	const messagesRef = firebase.firestore().collection("messages");
 	const query = messagesRef.orderBy("createdAt");
@@ -122,6 +122,9 @@ function ChatMessage(props) {
 		styles.messageText,
 		messageClass === "sent" && styles.sentMessageText,
 		Platform.OS === "web" ? styles.messageTextWeb : styles.messageTextMobile,
+		{
+			maxWidth: (2 / 3) * windowWidth * 0.7 - 30,
+		},
 	];
 
 	return (
@@ -303,7 +306,6 @@ const styles = StyleSheet.create({
 	},
 	messageBubble: {
 		backgroundColor: "#9ade7c",
-		height: "auto",
 		padding: 10,
 		borderRadius: 12,
 		shadowColor: "#000",
