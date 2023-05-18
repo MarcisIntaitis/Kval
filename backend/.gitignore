@@ -6,6 +6,8 @@ yarn-debug.log*
 yarn-error.log*
 firebase-debug.log*
 firebase-debug.*.log*
+babel.config.js
+package-lock.json
 
 # Firebase cache
 .firebase/
@@ -49,6 +51,8 @@ node_modules/
 
 # Optional npm cache directory
 .npm
+
+.json
 
 # Optional eslint cache
 .eslintcache

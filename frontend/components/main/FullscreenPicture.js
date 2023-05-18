@@ -3,9 +3,8 @@ import {
 	StyleSheet,
 	Text,
 	View,
-	Button,
+	TouchableOpacity,
 	FlatList,
-	TextInput,
 	Image,
 } from "react-native";
 import firebase from "firebase/compat/app";
@@ -20,7 +19,6 @@ export default function Comment(props) {
 
 	useEffect(() => {
 		if (props.route.params.postId !== postId) {
-			// Fetch post data
 			firebase
 				.firestore()
 				.collection("posts")
@@ -39,7 +37,6 @@ export default function Comment(props) {
 					console.log("Error fetching post:", error);
 				});
 
-			// Fetch comments data
 			firebase
 				.firestore()
 				.collection("posts")
@@ -65,25 +62,73 @@ export default function Comment(props) {
 	}, [props.route.params.postId]);
 
 	return (
-		<View>
-			<Image source={{ uri: postImage }} style={styles.postImage} />
-			<Text>{caption}</Text>
-			<Text
-				onPress={() =>
-					props.navigation.navigate("Comment", {
-						postId: postId,
-						uid: props.route.params.uid,
-					})
-				}
-			>
-				View Comments...
-			</Text>
+		<View style={styles.container}>
+			<View style={styles.postContainer}>
+				<Image source={{ uri: postImage }} style={styles.postImage} />
+				<Text style={styles.caption}>{caption}</Text>
+				<Text
+					onPress={() =>
+						props.navigation.navigate("Comment", {
+							postId: postId,
+							uid: props.route.params.uid,
+						})
+					}
+				>
+					<Text style={styles.viewComments}>View Comments...</Text>
+				</Text>
+			</View>
 		</View>
 	);
 }
 
 const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		paddingTop: 20,
+		alignItems: "center",
+		backgroundColor: "#333",
+		paddingHorizontal: 20,
+	},
+	postContainer: {
+		borderRadius: 12,
+		maxWidth: 650,
+		paddingTop: 40,
+		backgroundColor: "#424242",
+		width: "100%",
+		marginBottom: 20,
+	},
 	postImage: {
-		aspectRatio: 1 / 1,
+		width: "100%",
+		aspectRatio: 1,
+		resizeMode: "cover",
+		marginBottom: 10,
+	},
+	caption: {
+		fontSize: 16,
+		fontWeight: "bold",
+	},
+	commentsContainer: {
+		flex: 1,
+	},
+	commentsTitle: {
+		fontSize: 18,
+		fontWeight: "bold",
+		marginBottom: 10,
+	},
+	commentContainer: {
+		marginBottom: 10,
+	},
+	commentUsername: {
+		fontWeight: "bold",
+		marginBottom: 5,
+	},
+	commentText: {
+		fontSize: 14,
+	},
+	viewComments: {
+		paddingHorizontal: 16,
+		paddingVertical: 8,
+		fontSize: 14,
+		color: "#007AFF",
 	},
 });

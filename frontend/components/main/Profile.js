@@ -18,7 +18,6 @@ function Profile(props) {
 	const [user, setUser] = useState(null);
 	const [following, setFollowing] = useState(false);
 
-	//fetches different user posts and profile info to display
 	useEffect(() => {
 		const { currentUser, posts } = props;
 
@@ -89,36 +88,37 @@ function Profile(props) {
 		firebase.auth().signOut();
 	};
 
-	//buffer so there are no errors in case user has not loaded yet (user.name might try to fetch null and the app just crashes)
 	if (user === null) {
 		return <View />;
 	}
+
 	return (
 		<View style={styles.container}>
-			<View style={styles.containerInfo}>
-				<Text>{user.name}</Text>
+			<View style={styles.profileContainer}>
+				<View style={styles.containerInfo}>
+					<Text style={styles.userName}>{user.name}</Text>
 
-				{props.route.params.uid !== firebase.auth().currentUser.uid ? (
-					<View>
-						{following ? (
-							<Button title="Unfollow" onPress={() => onUnfollow()} />
-						) : (
-							<Button title="Follow" onPress={() => onFollow()} />
-						)}
-					</View>
-				) : (
-					<Button title="Logout" onPress={() => onLogout()} />
-				)}
-			</View>
+					{props.route.params.uid !== firebase.auth().currentUser.uid ? (
+						<View>
+							{following ? (
+								<Button title="Unfollow" onPress={() => onUnfollow()} />
+							) : (
+								<Button title="Follow" onPress={() => onFollow()} />
+							)}
+						</View>
+					) : (
+						<Button title="Logout" onPress={() => onLogout()} />
+					)}
+				</View>
 
-			<View style={styles.containerGallery}>
-				<FlatList
-					numColumns={4}
-					horizontal={false}
-					data={userPosts}
-					renderItem={({ item }) => (
-						<View style={styles.containerImage}>
+				<View style={styles.containerGallery}>
+					<FlatList
+						numColumns={4}
+						data={userPosts}
+						keyExtractor={(item) => item.id}
+						renderItem={({ item }) => (
 							<TouchableOpacity
+								style={styles.containerImage}
 								onPress={() =>
 									props.navigation.navigate("Post", {
 										postId: item.id,
@@ -131,9 +131,9 @@ function Profile(props) {
 									source={{ uri: item.downloadURL }}
 								/>
 							</TouchableOpacity>
-						</View>
-					)}
-				/>
+						)}
+					/>
+				</View>
 			</View>
 		</View>
 	);
@@ -150,22 +150,40 @@ export default connect(mapStateToProps, null)(Profile);
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		marginTop: 40,
+		paddingTop: 20,
+		alignItems: "center",
+		backgroundColor: "#333", // Set the background color
+	},
+	profileContainer: {
+		borderRadius: 12,
+		flex: 1,
+		paddingTop: 30,
+		width: "100%",
+		maxWidth: 900,
+		backgroundColor: "#424242", // Set the background color
 	},
 	containerInfo: {
-		margin: 20,
+		marginHorizontal: 20,
+		marginBottom: 20,
+		backgroundColor: "#424242",
+	},
+	userName: {
+		fontSize: 18,
+		fontWeight: "bold",
+		marginBottom: 8,
+		color: "white", // Set the text color
 	},
 	containerGallery: {
-		marginLeft: 5,
-		marginRight: 5,
 		flex: 1,
-	},
-	image: {
-		margin: 1,
-		flex: 1,
-		aspectRatio: 1 / 1,
+		marginHorizontal: 5,
 	},
 	containerImage: {
 		flex: 1 / 4,
+		aspectRatio: 1 / 1,
+		margin: 2,
+	},
+	image: {
+		flex: 1,
+		resizeMode: "cover",
 	},
 });

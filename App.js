@@ -75,7 +75,17 @@ const App = () => {
 	return (
 		<Provider store={store}>
 			<NavigationContainer>
-				<Stack.Navigator initialRouteName={loggedIn ? "Main" : "Landing"}>
+				<Stack.Navigator
+					initialRouteName={loggedIn ? "Main" : "Landing"}
+					screenOptions={{
+						headerTintColor: "#FFF", // Set the header text color to white
+						headerStyle: {
+							height: 60,
+							backgroundColor: "#424242", // Set the header background color
+						},
+						headerShadowVisible: false,
+					}}
+				>
 					{!loggedIn ? (
 						<>
 							<Stack.Screen
@@ -83,28 +93,48 @@ const App = () => {
 								component={LandingScreen}
 								options={{ headerShown: false }}
 							/>
-							<Stack.Screen name="Register" component={RegisterScreen} />
-							<Stack.Screen name="Login" component={LoginScreen} />
+							<Stack.Screen
+								name="Register"
+								component={RegisterScreen}
+								options={{ headerTitle: "Register" }} // Set the header title
+							/>
+							<Stack.Screen
+								name="Login"
+								component={LoginScreen}
+								options={{ headerTitle: "Login" }} // Set the header title
+							/>
 						</>
 					) : (
 						<>
 							<Stack.Screen
 								name="Main"
 								component={MainScreen}
-								options={{ headerShown: true }}
+								options={{ headerTitle: "thum" }} // Set the header title
 							/>
 							<Stack.Screen
 								name="Add"
 								component={AddScreen}
-								options={{ headerShown: true }}
+								options={{ headerTitle: "Add" }} // Set the header title
 							/>
-							<Stack.Screen name="Save" component={SaveScreen} />
-							<Stack.Screen name="Comment" component={CommentScreen} />
-							<Stack.Screen name="Post" component={FullscreenPictureScreen} />
+							<Stack.Screen
+								name="Save"
+								component={SaveScreen}
+								options={{ headerTitle: "Save" }} // Set the header title
+							/>
+							<Stack.Screen
+								name="Comment"
+								component={CommentScreen}
+								options={{ headerTitle: "Comment" }} // Set the header title
+							/>
+							<Stack.Screen
+								name="Post"
+								component={FullscreenPictureScreen}
+								options={{ headerTitle: "Post" }} // Set the header title
+							/>
 							<Stack.Screen
 								name="Chat"
 								component={ChatScreen}
-								options={{ headerShown: true }}
+								options={{ headerShown: false }}
 							/>
 						</>
 					)}

@@ -8,14 +8,16 @@ import {
 	Text,
 	View,
 	Button,
+	TouchableOpacity,
 	FlatList,
 	TextInput,
 } from "react-native";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
-function Comment(props) {
+const Comment = (props) => {
 	const [comments, setComments] = useState([]);
 	const [postId, setPostId] = useState("");
 	const [text, setText] = useState("");
@@ -89,38 +91,105 @@ function Comment(props) {
 	};
 
 	return (
-		<View>
-			<FlatList
-				numColumns={1}
-				horizontal={false}
-				data={comments}
-				renderItem={({ item }) => (
-					<View>
-						{item.user !== undefined ? <Text>{item.user.name}</Text> : null}
-						<Text>{item.text}</Text>
-						{item.creator === firebase.auth().currentUser.uid ? (
-							<View>
-								<Button
-									title="Delete"
+		<View style={styles.container}>
+			<View style={styles.commentSectionContainer}>
+				<FlatList
+					numColumns={1}
+					horizontal={false}
+					data={comments}
+					renderItem={({ item }) => (
+						<View style={styles.commentContainer}>
+							{item.user !== undefined ? (
+								<Text style={styles.userName}>{item.user.name}</Text>
+							) : null}
+							<Text style={styles.commentText}>{item.text}</Text>
+							{item.creator === firebase.auth().currentUser.uid ? (
+								<TouchableOpacity
 									onPress={() => onDeleteComment(item.id)}
-								/>
-								<View />
-							</View>
-						) : null}
-					</View>
-				)}
-			/>
-
-			<View>
-				<TextInput
-					placeholder="write a comment"
-					onChangeText={(text) => setText(text)}
+									style={styles.deleteButton}
+								>
+									<MaterialCommunityIcons
+										name="trash-can-outline"
+										size={24}
+										color="#303030"
+									/>
+								</TouchableOpacity>
+							) : null}
+						</View>
+					)}
 				/>
-				<Button onPress={() => onCommentSend()} title="Send" />
+
+				<View style={styles.inputContainer}>
+					<TextInput
+						style={styles.input}
+						placeholder="Write a comment"
+						onChangeText={(text) => setText(text)}
+					/>
+					<Button onPress={() => onCommentSend()} title="Send" />
+				</View>
 			</View>
 		</View>
 	);
-}
+};
+
+const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		backgroundColor: "#333",
+		paddingHorizontal: 16,
+		alignItems: "center",
+		paddingTop: 16,
+		paddingBottom: 16,
+	},
+	commentSectionContainer: {
+		paddingTop: 10,
+		borderRadius: 12,
+		maxWidth: 650,
+		backgroundColor: "#424242",
+		height: "100%",
+		width: "100%",
+	},
+	commentContainer: {
+		marginBottom: 12,
+		paddingHorizontal: 16,
+		paddingVertical: 5,
+		marginHorizontal: 10,
+		borderRadius: 5,
+		border: "2px solid #393939",
+	},
+	deleteButton: {
+		position: "absolute",
+		right: 10,
+	},
+
+	userName: {
+		color: "#fff",
+		fontSize: 16,
+		fontWeight: "bold",
+		marginBottom: 4,
+	},
+	commentText: {
+		color: "#fff",
+		fontSize: 14,
+	},
+	inputContainer: {
+		flexDirection: "row",
+		alignItems: "center",
+		marginVertical: 16,
+		marginHorizontal: 16,
+	},
+	input: {
+		border: "2px solid #393939",
+		borderRadius: 5,
+		flex: 1,
+		height: 40,
+		backgroundColor: "#404040",
+		borderRadius: 4,
+		paddingHorizontal: 10,
+		marginRight: 8,
+		color: "#fff",
+	},
+});
 
 const mapStateToProps = (store) => ({
 	users: store.usersState.users,

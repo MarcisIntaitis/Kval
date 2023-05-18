@@ -28,9 +28,17 @@ export class Main extends Component {
 		this.props.fetchUserPosts();
 		this.props.fetchUserFollowing();
 	}
+
 	render() {
 		return (
-			<Tab.Navigator initialRouteName="Feed" labeled={false}>
+			<Tab.Navigator
+				initialRouteName="Feed"
+				labeled={false}
+				barStyle={{
+					backgroundColor: "#292929", // Set the background color to dark
+					borderTopColor: "#555", // Set the top border color to a darker shade
+				}}
+			>
 				<Tab.Screen
 					name="Feed"
 					component={FeedScreen}
@@ -65,9 +73,8 @@ export class Main extends Component {
 						),
 					}}
 				/>
-
 				<Tab.Screen
-					name="Inbox"
+					name="Global Chat"
 					component={ChatScreen}
 					options={{
 						tabBarIcon: ({ color, size }) => (
