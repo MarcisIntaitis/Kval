@@ -3,10 +3,10 @@ import { createStackNavigator } from "@react-navigation/stack";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
-import React, { Component } from "react";
+import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import { Provider } from "react-redux";
-import { applyMiddleware, legacy_createStore as createStore } from "redux";
+import { createStore, applyMiddleware } from "redux";
 import thunk from "redux-thunk";
 import LandingScreen from "./frontend/components/auth/Landing";
 import LoginScreen from "./frontend/components/auth/Login";
@@ -17,6 +17,7 @@ import rootReducer from "./frontend/redux/reducers";
 import SaveScreen from "./frontend/components/main/Save";
 import CommentScreen from "./frontend/components/main/Comment";
 import FullscreenPictureScreen from "./frontend/components/main/FullscreenPicture";
+import ChatScreen from "./frontend/components/main/Chat";
 
 import {
 	API_KEY,
@@ -30,7 +31,7 @@ import {
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
-// Firebase config info for connecting to the api and so firebase works in general
+// Firebase config info for connecting to the API and ensuring Firebase works
 const firebaseConfig = {
 	apiKey: API_KEY,
 	authDomain: AUTH_DOMAIN,
@@ -47,79 +48,70 @@ if (firebase.apps.length === 0) {
 
 const Stack = createStackNavigator();
 
-export class App extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			loaded: false,
-		};
-	}
+const App = () => {
+	const [loggedIn, setLoggedIn] = useState(false);
+	const [loaded, setLoaded] = useState(false);
 
-	//checks if the user is logged in and changes variables depending on the state
-	componentDidMount() {
+	useEffect(() => {
 		firebase.auth().onAuthStateChanged((user) => {
 			if (!user) {
-				this.setState({
-					loggedIn: false,
-					loaded: true,
-				});
+				setLoggedIn(false);
+				setLoaded(true);
 			} else {
-				this.setState({
-					loggedIn: true,
-					loaded: true,
-				});
+				setLoggedIn(true);
+				setLoaded(true);
 			}
 		});
-	}
+	}, []);
 
-	render() {
-		const { loggedIn, loaded } = this.state;
-		if (!loaded) {
-			return (
-				<View style={{ flex: 1, justifyContent: "center" }}>
-					<Text> Loading </Text>
-				</View>
-			);
-		}
-		if (!loggedIn) {
-			return (
-				// Navigation between all of the screens (does not change the url of the page)
-				<NavigationContainer>
-					<Stack.Navigator initialRouteName="Landing">
-						<Stack.Screen
-							name="Landing"
-							component={LandingScreen}
-							options={{ headerShown: false }}
-						/>
-						<Stack.Screen name="Register" component={RegisterScreen} />
-						<Stack.Screen name="Login" component={LoginScreen} />
-					</Stack.Navigator>
-				</NavigationContainer>
-			);
-		}
+	if (!loaded) {
 		return (
-			<Provider store={store}>
-				<NavigationContainer>
-					<Stack.Navigator initialRouteName="Main">
-						<Stack.Screen
-							name="Main"
-							component={MainScreen}
-							options={{ headerShown: true }}
-						/>
-						<Stack.Screen
-							name="Add"
-							component={AddScreen}
-							options={{ headerShown: true }}
-							navigation={this.props.navigation}
-						/>
-						<Stack.Screen name="Save" component={SaveScreen} />
-						<Stack.Screen name="Comment" component={CommentScreen} />
-						<Stack.Screen name="Post" component={FullscreenPictureScreen} />
-					</Stack.Navigator>
-				</NavigationContainer>
-			</Provider>
+			<View style={{ flex: 1, justifyContent: "center" }}>
+				<Text>Loading</Text>
+			</View>
 		);
 	}
-}
+
+	return (
+		<Provider store={store}>
+			<NavigationContainer>
+				<Stack.Navigator initialRouteName={loggedIn ? "Main" : "Landing"}>
+					{!loggedIn ? (
+						<>
+							<Stack.Screen
+								name="Landing"
+								component={LandingScreen}
+								options={{ headerShown: false }}
+							/>
+							<Stack.Screen name="Register" component={RegisterScreen} />
+							<Stack.Screen name="Login" component={LoginScreen} />
+						</>
+					) : (
+						<>
+							<Stack.Screen
+								name="Main"
+								component={MainScreen}
+								options={{ headerShown: true }}
+							/>
+							<Stack.Screen
+								name="Add"
+								component={AddScreen}
+								options={{ headerShown: true }}
+							/>
+							<Stack.Screen name="Save" component={SaveScreen} />
+							<Stack.Screen name="Comment" component={CommentScreen} />
+							<Stack.Screen name="Post" component={FullscreenPictureScreen} />
+							<Stack.Screen
+								name="Chat"
+								component={ChatScreen}
+								options={{ headerShown: true }}
+							/>
+						</>
+					)}
+				</Stack.Navigator>
+			</NavigationContainer>
+		</Provider>
+	);
+};
 
 export default App;

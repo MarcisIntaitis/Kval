@@ -14,6 +14,7 @@ import {
 import FeedScreen from "./main/Feed";
 import SearchScreen from "./main/Search";
 import ProfileScreen from "./main/Profile";
+import ChatScreen from "./main/Chat";
 
 const EmptyScreen = () => {
 	return null;
@@ -67,7 +68,7 @@ export class Main extends Component {
 
 				<Tab.Screen
 					name="Inbox"
-					component={EmptyScreen}
+					component={ChatScreen}
 					options={{
 						tabBarIcon: ({ color, size }) => (
 							<MaterialCommunityIcons name="message" color={color} size={26} />

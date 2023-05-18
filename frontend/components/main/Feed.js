@@ -53,6 +53,7 @@ function Feed(props) {
 						<View>
 							<Text>{item.user && item.user.name}</Text>
 							<Image style={styles.image} source={{ uri: item.downloadURL }} />
+							<Text>{item.likesCount}</Text>
 							{item.currentUserLike ? (
 								<Button
 									title="dislike"
