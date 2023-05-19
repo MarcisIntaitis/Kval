@@ -118,14 +118,19 @@ const Comment = (props) => {
 						</View>
 					)}
 				/>
-
 				<View style={styles.inputContainer}>
 					<TextInput
 						style={styles.input}
 						placeholder="Write a comment"
 						onChangeText={(text) => setText(text)}
 					/>
-					<Button onPress={() => onCommentSend()} title="Send" />
+					<TouchableOpacity
+						style={styles.buttonStyle}
+						onPress={() => onCommentSend()}
+						title="Send"
+					>
+						<Text style={styles.buttonText}>Post</Text>
+					</TouchableOpacity>
 				</View>
 			</View>
 		</View>
@@ -151,17 +156,29 @@ const styles = StyleSheet.create({
 	},
 	commentContainer: {
 		marginBottom: 12,
+		backgroundColor: "#525252",
 		paddingHorizontal: 16,
-		paddingVertical: 5,
+		paddingVertical: 10,
 		marginHorizontal: 10,
 		borderRadius: 5,
-		border: "2px solid #393939",
 	},
 	deleteButton: {
 		position: "absolute",
 		right: 10,
 	},
-
+	buttonText: {
+		color: "#333",
+		fontWeight: "400",
+	},
+	buttonStyle: {
+		backgroundColor: "#9ade7c",
+		paddingVertical: 8,
+		paddingHorizontal: 16,
+		width: 80,
+		borderRadius: 20,
+		alignItems: "center",
+		justifyContent: "center",
+	},
 	userName: {
 		color: "#fff",
 		fontSize: 16,
@@ -179,15 +196,14 @@ const styles = StyleSheet.create({
 		marginHorizontal: 16,
 	},
 	input: {
-		border: "2px solid #393939",
-		borderRadius: 5,
+		borderRadius: 12,
 		flex: 1,
 		height: 40,
-		backgroundColor: "#404040",
+		backgroundColor: "#525252",
 		borderRadius: 4,
 		paddingHorizontal: 10,
 		marginRight: 8,
-		color: "#fff",
+		color: "#333",
 	},
 });
 

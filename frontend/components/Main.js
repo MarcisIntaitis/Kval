@@ -35,8 +35,8 @@ export class Main extends Component {
 				initialRouteName="Feed"
 				labeled={false}
 				barStyle={{
-					backgroundColor: "#292929", // Set the background color to dark
-					borderTopColor: "#555", // Set the top border color to a darker shade
+					backgroundColor: "#292929",
+					borderTopColor: "#555",
 				}}
 			>
 				<Tab.Screen

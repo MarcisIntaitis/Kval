@@ -75,6 +75,10 @@ function ChatRoom(props) {
 		return users[uid]?.name || ""; // Get name from user data
 	};
 
+	const getProfilePic = (uid) => {
+		return users[uid]?.profilePic || "";
+	};
+
 	return (
 		<View style={styles.container}>
 			<View style={styles.messagingContainer}>
@@ -91,6 +95,7 @@ function ChatRoom(props) {
 								key={msg.id}
 								message={msg}
 								displayName={getDisplayName(msg.uid)}
+								photoURL={getProfilePic(msg.uid)}
 							/>
 						))}
 				</ScrollView>
@@ -132,6 +137,10 @@ const styles = StyleSheet.create({
 	scrollViewContent: {
 		paddingVertical: 10,
 		paddingHorizontal: 16,
+	},
+	buttonText: {
+		color: "#333",
+		fontWeight: "400",
 	},
 	inputContainer: {
 		flexDirection: "row",

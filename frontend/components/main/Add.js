@@ -9,6 +9,7 @@ export default function Add({ navigation }) {
 	const [camera, setCamera] = useState(null);
 	const [image, setImage] = useState(null);
 	const [type, setType] = useState(Camera.Constants.Type.Back);
+	const [isImageSelected, setIsImageSelected] = useState(false);
 
 	useEffect(() => {
 		(async () => {
@@ -25,10 +26,10 @@ export default function Add({ navigation }) {
 		if (camera) {
 			const data = await camera.takePictureAsync(null);
 			setImage(data.uri);
+			setIsImageSelected(true);
 		}
 	};
 
-	//adds gallery functionality to the app, all picked images (maybe later on videos) are with a fixed aspect ratio for ease of use
 	const pickImage = async () => {
 		let result = await ImagePicker.launchImageLibraryAsync({
 			mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -39,65 +40,140 @@ export default function Add({ navigation }) {
 
 		if (!result.cancelled) {
 			setImage(result.uri);
+			setIsImageSelected(true);
 		}
+	};
+
+	const handleSave = () => {
+		if (image) {
+			navigation.navigate("Save", { image });
+		}
+	};
+
+	const handleBack = () => {
+		setIsImageSelected(false);
 	};
 
 	if (hasCameraPermission === null || hasGalleryPermission === false) {
 		return <View />;
 	}
+
 	if (hasCameraPermission === false || hasGalleryPermission === false) {
 		return (
-			<View>
-				{image && <Image source={{ uri: image }} style={styles.fixedRatio} />}
-				<Button title="Pick from gallery" onPress={() => pickImage()}></Button>
-				<Button
-					title="Save"
-					onPress={() => navigation.navigate("Save", { image })}
-				></Button>
+			<View style={styles.container}>
+				{image && <Image source={{ uri: image }} style={styles.image} />}
+				{isImageSelected ? (
+					<>
+						<Button title="Save" onPress={handleSave} style={styles.button} />
+						<Button title="Back" onPress={handleBack} style={styles.button} />
+					</>
+				) : (
+					<>
+						<Button
+							title="Pick from gallery"
+							onPress={() => pickImage()}
+							style={styles.button}
+						/>
+						<Button
+							title="Save"
+							onPress={handleSave}
+							style={styles.button}
+							disabled
+						/>
+						<Button
+							title="Back"
+							onPress={handleBack}
+							style={styles.button}
+							disabled
+						/>
+					</>
+				)}
 			</View>
 		);
 	}
 
-	//buttons for using the "add post" section
 	return (
-		<View style={{ flex: 1 }}>
-			<View style={styles.camContainer}>
-				<Camera
-					style={styles.fixedRatio}
-					type={type}
-					ref={(ref) => setCamera(ref)}
-				/>
-			</View>
-			{image && <Image source={{ uri: image }} style={styles.fixedRatio} />}
-			<Button
-				title="Flip Camera"
-				onPress={() => {
-					setType(
-						type === Camera.Constants.Type.backgroundColor
-							? Camera.Constants.Type.front
-							: Camera.Constants.Type.back
-					);
-				}}
-			></Button>
-			<Button title="Take Picture" onPress={() => takePicture()}></Button>
-			<Button title="Pick from gallery" onPress={() => pickImage()}></Button>
-			<Button
-				title="Save"
-				onPress={() => navigation.navigate("Save", { image })}
-			></Button>
-		</View>
+		<>
+			{!isImageSelected && (
+				<View style={styles.container}>
+					<View style={styles.addContainer}>
+						<View style={styles.camContainer}>
+							<Camera
+								style={styles.camera}
+								type={type}
+								ref={(ref) => setCamera(ref)}
+							/>
+						</View>
+						<Button
+							title="Flip Camera"
+							onPress={() =>
+								setType(
+									type === Camera.Constants.Type.Back
+										? Camera.Constants.Type.Front
+										: Camera.Constants.Type.Back
+								)
+							}
+							style={styles.button}
+						/>
+						<Button
+							title="Take Picture"
+							onPress={() => takePicture()}
+							style={styles.button}
+						/>
+						<Button
+							title="Pick from gallery"
+							onPress={() => pickImage()}
+							style={styles.button}
+						/>
+					</View>
+				</View>
+			)}
+			{isImageSelected && (
+				<View style={styles.container}>
+					<View style={styles.addContainer}>
+						<View style={styles.camContainer}>
+							{image && <Image source={{ uri: image }} style={styles.camera} />}
+						</View>
+						<Button title="Save" onPress={handleSave} style={styles.button} />
+						<Button title="Back" onPress={handleBack} style={styles.button} />
+					</View>
+				</View>
+			)}
+		</>
 	);
 }
 
 const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		alignItems: "center",
+		justifyContent: "center",
+		backgroundColor: "#333",
+	},
+
+	savedImageContainer: {},
+	addContainer: {
+		marginTop: 20,
+		flex: 1,
+		maxWidth: 650,
+		width: "100%",
+		borderRadius: 12,
+		backgroundColor: "#424242",
+	},
 	camContainer: {
-		width: "50%",
+		paddingTop: 20,
 		flex: 1,
 		flexDirection: "row",
+		justifyContent: "center",
 	},
-	fixedRatio: {
-		width: "50%",
+	camera: {
+		maxWidth: 500,
+		maxHeight: 500,
 		flex: 1,
 		aspectRatio: 1,
+	},
+	button: {
+		marginVertical: 10,
+		width: 200,
 	},
 });

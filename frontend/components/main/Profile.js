@@ -14,6 +14,8 @@ import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
 import { connect } from "react-redux";
+import { Feather } from "@expo/vector-icons"; // Import Feather icon library
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 function Profile(props) {
 	const [userPosts, setUserPosts] = useState([]);
@@ -21,6 +23,7 @@ function Profile(props) {
 	const [following, setFollowing] = useState(false);
 	const [settings, setSettings] = useState(null);
 	const [displayNameInput, setDisplayNameInput] = useState("");
+	const [profilePicURL, setProfilePicURL] = useState("");
 	const [isModalVisible, setIsModalVisible] = useState(false);
 
 	useEffect(() => {
@@ -86,12 +89,15 @@ function Profile(props) {
 	}, [props.route.params.uid, props.following]);
 
 	const onSaveSettings = () => {
-		const trimmedName = displayNameInput.trim();
+		let trimmedName = displayNameInput.trim();
 		if (trimmedName === "") {
-			console.log("Display name cannot be empty");
-			return;
+			trimmedName = user.name;
+			if (trimmedName === "‎") {
+				console.log("Display name cannot be empty");
+				return;
+			}
 		}
-
+		setProfilePic(profilePicURL); // Call setProfilePic with profilePicURL state
 		firebase
 			.firestore()
 			.collection("users")
@@ -127,6 +133,21 @@ function Profile(props) {
 			.delete();
 	};
 
+	const setProfilePic = (profilePicUrl) => {
+		firebase
+			.firestore()
+			.collection("users")
+			.doc(props.route.params.uid)
+			.update({ profilePic: profilePicUrl })
+			.then(() => {
+				console.log("Profile picture updated successfully");
+				setProfilePicURL(profilePicUrl);
+			})
+			.catch((error) => {
+				console.log("Error updating profile picture:", error);
+			});
+	};
+
 	const onLogout = () => {
 		firebase.auth().signOut();
 	};
@@ -139,6 +160,7 @@ function Profile(props) {
 		<View style={styles.container}>
 			<View style={styles.profileContainer}>
 				<View style={styles.containerInfo}>
+					<Image style={styles.profilePicture} source={user.profilePic} />
 					<Text style={styles.userName}>{user.name}</Text>
 
 					{props.route.params.uid !== firebase.auth().currentUser.uid ? (
@@ -150,38 +172,14 @@ function Profile(props) {
 							)}
 						</View>
 					) : (
-						<Button title="Logout" onPress={() => onLogout()} />
+						<TouchableOpacity
+							style={styles.settingsIconContainer}
+							onPress={() => setIsModalVisible(true)}
+						>
+							<Feather name="settings" size={24} color="white" />
+						</TouchableOpacity>
 					)}
 				</View>
-
-				{props.route.params.uid === firebase.auth().currentUser.uid && (
-					<View style={styles.containerSettings}>
-						<Button title="Settings" onPress={() => setIsModalVisible(true)} />
-
-						<Modal visible={isModalVisible} animationType="slide">
-							<View style={styles.modalContainer}>
-								<Text style={styles.modalTitle}>Settings</Text>
-								<View style={styles.modalItem}>
-									<Text style={styles.modalLabel}>Display Name:</Text>
-									<TextInput
-										style={styles.modalInput}
-										value={displayNameInput}
-										onChangeText={(text) => setDisplayNameInput(text)}
-									/>
-								</View>
-								<Button
-									title="Save Settings"
-									onPress={onSaveSettings}
-									disabled={!displayNameInput}
-								/>
-								<Button
-									title="Close"
-									onPress={() => setIsModalVisible(false)}
-								/>
-							</View>
-						</Modal>
-					</View>
-				)}
 
 				<View style={styles.containerGallery}>
 					<FlatList
@@ -207,6 +205,55 @@ function Profile(props) {
 					/>
 				</View>
 			</View>
+
+			<Modal visible={isModalVisible} animationType="slide">
+				<View style={styles.container}>
+					<View style={styles.modalContainer}>
+						<Text style={styles.modalTitle}>Settings</Text>
+						<View style={styles.modalItem}>
+							<TextInput
+								style={styles.modalInput}
+								value={displayNameInput}
+								placeholder={user.name}
+								onChangeText={(text) => setDisplayNameInput(text)}
+							/>
+						</View>
+						<View style={styles.modalItem}>
+							<TextInput
+								style={styles.modalInput}
+								value={profilePicURL}
+								placeholder="Profile pic url"
+								onChangeText={(text) => setProfilePicURL(text)}
+							/>
+						</View>
+
+						<TouchableOpacity
+							style={styles.buttonStyle}
+							onPress={onSaveSettings}
+							title="Send"
+						>
+							<Text style={styles.buttonText}>Save Settings</Text>
+						</TouchableOpacity>
+
+						<TouchableOpacity
+							style={styles.settingsCloseIconContainer}
+							onPress={() => setIsModalVisible(false)}
+						>
+							<MaterialCommunityIcons
+								name="arrow-left-bold-outline"
+								size={26}
+								color="white"
+							/>
+						</TouchableOpacity>
+						<TouchableOpacity
+							style={styles.logoutIconContainer}
+							onPress={() => onLogout()}
+						>
+							<MaterialCommunityIcons name="logout" size={24} color="white" />
+						</TouchableOpacity>
+					</View>
+				</View>
+			</Modal>
 		</View>
 	);
 }
@@ -226,6 +273,13 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		backgroundColor: "#333",
 	},
+	profilePicture: {
+		width: 90,
+		height: 90,
+		borderRadius: 20,
+		marginRight: 10,
+		backgroundColor: "black",
+	},
 	profileContainer: {
 		borderRadius: 12,
 		flex: 1,
@@ -235,6 +289,8 @@ const styles = StyleSheet.create({
 		backgroundColor: "#424242",
 	},
 	containerInfo: {
+		alignItems: "center",
+		flexDirection: "row",
 		marginHorizontal: 20,
 		marginBottom: 20,
 		backgroundColor: "#424242",
@@ -245,39 +301,21 @@ const styles = StyleSheet.create({
 		marginBottom: 8,
 		color: "white",
 	},
-	containerSettings: {
-		marginHorizontal: 20,
-		marginTop: 20,
-		backgroundColor: "#424242",
+	settingsIconContainer: {
+		position: "absolute",
+		right: 10,
+	},
+	settingsCloseIconContainer: {
+		position: "absolute",
+		top: 5,
+		left: 10,
 		padding: 10,
-		borderRadius: 8,
 	},
-	modalContainer: {
-		flex: 1,
-		justifyContent: "center",
-		alignItems: "center",
-		backgroundColor: "#333",
-	},
-	modalTitle: {
-		fontSize: 18,
-		fontWeight: "bold",
-		marginBottom: 10,
-		color: "white",
-	},
-	modalItem: {
-		flexDirection: "row",
-		alignItems: "center",
-		marginBottom: 8,
-	},
-	modalLabel: {
-		flex: 1,
-		color: "white",
-	},
-	modalInput: {
-		flex: 2,
-		backgroundColor: "white",
-		padding: 8,
-		borderRadius: 4,
+	logoutIconContainer: {
+		position: "absolute",
+		top: 10,
+		right: 10,
+		padding: 10,
 	},
 	containerGallery: {
 		flex: 1,
@@ -289,5 +327,52 @@ const styles = StyleSheet.create({
 	image: {
 		flex: 1,
 		aspectRatio: 1 / 1,
+	},
+	modalContainer: {
+		flex: 1,
+		backgroundColor: "#424242",
+		paddingTop: 20,
+		paddingHorizontal: 20,
+		borderRadius: 12,
+		width: "100%",
+		maxWidth: 900,
+		alignItems: "center",
+	},
+	buttonStyle: {
+		position: "absolute",
+		backgroundColor: "#9ade7c",
+		paddingVertical: 8,
+		paddingHorizontal: 16,
+		bottom: 20,
+		width: 300,
+		borderRadius: 20,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	modalTitle: {
+		fontSize: 18,
+		paddingBottom: 20,
+		fontWeight: "bold",
+		marginBottom: 10,
+		color: "white",
+	},
+	modalInput: {
+		borderRadius: 5,
+		flex: 1,
+		height: 40,
+		backgroundColor: "#525252",
+		borderRadius: 4,
+		paddingHorizontal: 10,
+		marginRight: 8,
+		color: "#333",
+		width: 500,
+	},
+	modalItem: {
+		flexDirection: "row",
+		marginBottom: 8,
+	},
+	modalLabel: {
+		flex: 1,
+		color: "white",
 	},
 });

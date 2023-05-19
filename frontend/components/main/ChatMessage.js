@@ -14,8 +14,8 @@ import "firebase/compat/firestore";
 const windowWidth = Dimensions.get("window").width;
 
 function ChatMessage(props) {
-	const { text, uid, photoURL, createdAt } = props.message;
-	const displayName = props.displayName;
+	const { text, uid, createdAt } = props.message;
+	const { displayName, photoURL } = props;
 
 	const currentUserUID = firebase.auth().currentUser.uid;
 
