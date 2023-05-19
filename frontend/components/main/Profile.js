@@ -7,6 +7,8 @@ import {
 	FlatList,
 	Button,
 	TouchableOpacity,
+	TextInput,
+	Modal,
 } from "react-native";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
@@ -17,6 +19,9 @@ function Profile(props) {
 	const [userPosts, setUserPosts] = useState([]);
 	const [user, setUser] = useState(null);
 	const [following, setFollowing] = useState(false);
+	const [settings, setSettings] = useState(null);
+	const [displayNameInput, setDisplayNameInput] = useState("");
+	const [isModalVisible, setIsModalVisible] = useState(false);
 
 	useEffect(() => {
 		const { currentUser, posts } = props;
@@ -34,9 +39,10 @@ function Profile(props) {
 					if (snapshot.exists) {
 						setUser(snapshot.data());
 					} else {
-						console.log("doesnt exist");
+						console.log("User does not exist");
 					}
 				});
+
 			firebase
 				.firestore()
 				.collection("posts")
@@ -62,7 +68,44 @@ function Profile(props) {
 		} else {
 			setFollowing(false);
 		}
+
+		firebase
+			.firestore()
+			.collection("users")
+			.doc(props.route.params.uid)
+			.collection("settings")
+			.doc("profile")
+			.get()
+			.then((snapshot) => {
+				if (snapshot.exists) {
+					setSettings(snapshot.data());
+				} else {
+					console.log("Settings not found");
+				}
+			});
 	}, [props.route.params.uid, props.following]);
+
+	const onSaveSettings = () => {
+		const trimmedName = displayNameInput.trim();
+		if (trimmedName === "") {
+			console.log("Display name cannot be empty");
+			return;
+		}
+
+		firebase
+			.firestore()
+			.collection("users")
+			.doc(props.route.params.uid)
+			.update({ name: trimmedName })
+			.then(() => {
+				console.log("Name updated successfully");
+				setUser((prevUser) => ({ ...prevUser, name: trimmedName }));
+				setIsModalVisible(false);
+			})
+			.catch((error) => {
+				console.log("Error updating name:", error);
+			});
+	};
 
 	const onFollow = () => {
 		firebase
@@ -111,6 +154,35 @@ function Profile(props) {
 					)}
 				</View>
 
+				{props.route.params.uid === firebase.auth().currentUser.uid && (
+					<View style={styles.containerSettings}>
+						<Button title="Settings" onPress={() => setIsModalVisible(true)} />
+
+						<Modal visible={isModalVisible} animationType="slide">
+							<View style={styles.modalContainer}>
+								<Text style={styles.modalTitle}>Settings</Text>
+								<View style={styles.modalItem}>
+									<Text style={styles.modalLabel}>Display Name:</Text>
+									<TextInput
+										style={styles.modalInput}
+										value={displayNameInput}
+										onChangeText={(text) => setDisplayNameInput(text)}
+									/>
+								</View>
+								<Button
+									title="Save Settings"
+									onPress={onSaveSettings}
+									disabled={!displayNameInput}
+								/>
+								<Button
+									title="Close"
+									onPress={() => setIsModalVisible(false)}
+								/>
+							</View>
+						</Modal>
+					</View>
+				)}
+
 				<View style={styles.containerGallery}>
 					<FlatList
 						numColumns={4}
@@ -152,7 +224,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 		paddingTop: 20,
 		alignItems: "center",
-		backgroundColor: "#333", // Set the background color
+		backgroundColor: "#333",
 	},
 	profileContainer: {
 		borderRadius: 12,
@@ -160,7 +232,7 @@ const styles = StyleSheet.create({
 		paddingTop: 30,
 		width: "100%",
 		maxWidth: 900,
-		backgroundColor: "#424242", // Set the background color
+		backgroundColor: "#424242",
 	},
 	containerInfo: {
 		marginHorizontal: 20,
@@ -171,19 +243,51 @@ const styles = StyleSheet.create({
 		fontSize: 18,
 		fontWeight: "bold",
 		marginBottom: 8,
-		color: "white", // Set the text color
+		color: "white",
+	},
+	containerSettings: {
+		marginHorizontal: 20,
+		marginTop: 20,
+		backgroundColor: "#424242",
+		padding: 10,
+		borderRadius: 8,
+	},
+	modalContainer: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+		backgroundColor: "#333",
+	},
+	modalTitle: {
+		fontSize: 18,
+		fontWeight: "bold",
+		marginBottom: 10,
+		color: "white",
+	},
+	modalItem: {
+		flexDirection: "row",
+		alignItems: "center",
+		marginBottom: 8,
+	},
+	modalLabel: {
+		flex: 1,
+		color: "white",
+	},
+	modalInput: {
+		flex: 2,
+		backgroundColor: "white",
+		padding: 8,
+		borderRadius: 4,
 	},
 	containerGallery: {
 		flex: 1,
-		marginHorizontal: 5,
+		backgroundColor: "#333",
 	},
 	containerImage: {
 		flex: 1 / 4,
-		aspectRatio: 1 / 1,
-		margin: 2,
 	},
 	image: {
 		flex: 1,
-		resizeMode: "cover",
+		aspectRatio: 1 / 1,
 	},
 });

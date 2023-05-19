@@ -69,7 +69,13 @@ function Feed(props) {
 					onPress={() => {
 						item.currentUserLike
 							? onDislikePress(item.user.uid, item.id, (item.likesCount -= 1))
-							: onLikePress(item.user.uid, item.id, (item.likesCount += 1));
+							: onLikePress(
+									item.user.uid,
+									item.id,
+									item.likesCount === undefined
+										? (item.likesCount = 1)
+										: (item.likesCount += 1)
+							  );
 					}}
 				>
 					<MaterialCommunityIcons
