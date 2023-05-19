@@ -57,9 +57,7 @@ function ChatMessage(props) {
 			{messageClass === "received" && (
 				<Image
 					source={{
-						uri:
-							photoURL ||
-							"https://1fid.com/wp-content/uploads/2022/07/funny-profile-pic-5-520x520.jpg",
+						uri: photoURL,
 					}}
 					style={styles.avatar}
 				/>
@@ -182,7 +180,6 @@ const styles = StyleSheet.create({
 		height: 40,
 		borderRadius: 20,
 		marginRight: 10,
-		backgroundColor: "black",
 	},
 	messageBubble: {
 		backgroundColor: "#9ade7c",

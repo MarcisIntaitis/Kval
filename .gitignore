@@ -12,6 +12,7 @@ npm-debug.*
 .vscode/
 web-build/
 config.js
+eas.json
 yarn.lock
 package.json
 package-lock.json

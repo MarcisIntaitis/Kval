@@ -55,6 +55,7 @@ function Feed(props) {
 	const renderPost = ({ item }) => (
 		<View style={styles.postContainer}>
 			<View style={styles.postHeader}>
+				<Image style={styles.profilePicture} source={item.user.profilePic} />
 				<Text style={styles.userName}>{item.user && item.user.name}</Text>
 			</View>
 			<Image
@@ -157,6 +158,13 @@ const styles = StyleSheet.create({
 		fontSize: 16,
 		fontWeight: "bold",
 		color: "#FFFFFF",
+	},
+	profilePicture: {
+		width: 40,
+		height: 40,
+		borderRadius: 20,
+		marginRight: 10,
+		backgroundColor: "black",
 	},
 	image: {
 		aspectRatio: 1,
