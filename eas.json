@@ -1,21 +1,13 @@
 {
-  "cli": {
-    "requireCommit": true
-  },
   "build": {
-    "preview": {
+    "development": {
+      "distribution": "internal",
       "android": {
         "buildType": "apk"
       }
     },
-    "preview2": {
-      "android": {
-        "gradleCommand": ":app:assembleRelease --stacktrace"
-      }
-    },
-    "preview3": {
-      "developmentClient": true
-    },
-    "production": {}
+    "production": {
+      "distribution": "store"
+    }
   }
 }

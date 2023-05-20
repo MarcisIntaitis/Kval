@@ -12,6 +12,9 @@ npm-debug.*
 .vscode/
 web-build/
 yarn.lock
+package.json
+package-lock.json
+config.js
 # macOS
 .DS_Store
 

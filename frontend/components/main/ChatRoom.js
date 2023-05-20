@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import {
 	View,
 	Text,
@@ -16,15 +16,15 @@ import { serverTimestamp } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 import ChatMessage from "./ChatMessage";
 
-const windowWidth = Dimensions.get("window").width;
-
 function ChatRoom(props) {
 	const dummy = useRef();
 	const messagesRef = firebase.firestore().collection("messages");
 	const query = messagesRef.orderBy("createdAt");
 
 	const [messages] = useCollectionData(query, { idField: "id" });
-	const [users, setUsers] = useState({}); // State variable to store user data
+	const [users, setUsers] = useState({});
+	const [userProfilePics, setUserProfilePics] = useState({}); // State variable to store user profile pictures
+	const [formValue, setFormValue] = useState("");
 
 	useEffect(() => {
 		// Fetch user data from Firebase
@@ -34,68 +34,76 @@ function ChatRoom(props) {
 			.get()
 			.then((snapshot) => {
 				const userData = {};
+				const profilePics = {}; // Temporary object to store profile pictures
 				snapshot.forEach((doc) => {
-					userData[doc.id] = doc.data();
+					const data = doc.data();
+					userData[doc.id] = data;
+					profilePics[doc.id] = data.profilePic;
 				});
 				setUsers(userData);
+				setUserProfilePics(profilePics); // Store the profile pictures
 			})
 			.catch((error) => {
 				console.log("Error fetching user data:", error);
 			});
 	}, []);
 
-	const [formValue, setFormValue] = useState("");
-
 	const sendMessage = async () => {
-		const { uid, photoURL } = firebase.auth().currentUser;
-		const messageId = uuidv4();
+		if (formValue.trim()) {
+			const { uid, photoURL } = firebase.auth().currentUser;
+			const messageId = uuidv4();
 
-		await messagesRef.doc(messageId).set({
-			id: messageId,
-			text: formValue,
-			createdAt: serverTimestamp(),
-			uid,
-			photoURL,
-		});
+			await messagesRef.doc(messageId).set({
+				id: messageId,
+				text: formValue,
+				createdAt: serverTimestamp(),
+				uid,
+				photoURL,
+			});
 
-		setFormValue("");
-		dummy.current?.scrollToEnd({ animated: true });
+			setFormValue("");
+			dummy.current?.scrollToEnd({ animated: true });
+		}
 	};
 
 	const handleKeyPress = (event) => {
 		if (event.key === "Enter") {
 			event.preventDefault();
-			if (formValue.trim()) {
-				sendMessage();
-			}
+			sendMessage();
 		}
 	};
 
-	const getDisplayName = (uid) => {
-		return users[uid]?.name || ""; // Get name from user data
-	};
+	const getDisplayName = useCallback(
+		(uid) => {
+			return users[uid]?.name || "";
+		},
+		[users]
+	);
 
-	const getProfilePic = (uid) => {
-		return users[uid]?.profilePic || "";
-	};
+	const getProfilePic = useCallback(
+		(uid) => {
+			return userProfilePics[uid] || "";
+		},
+		[userProfilePics]
+	);
 
 	return (
 		<View style={styles.container}>
 			<View style={styles.messagingContainer}>
 				<ScrollView
-					contentContainerStyle={styles.scrollViewContent}
 					ref={dummy}
 					onContentSizeChange={() =>
 						dummy.current?.scrollToEnd({ animated: true })
 					}
+					style={styles.scrollViewContent}
 				>
 					{messages &&
-						messages.map((msg) => (
+						messages.map((message) => (
 							<ChatMessage
-								key={msg.id}
-								message={msg}
-								displayName={getDisplayName(msg.uid)}
-								photoURL={getProfilePic(msg.uid)}
+								key={message.id}
+								message={message}
+								displayName={getDisplayName(message.uid)}
+								photoURL={getProfilePic(message.uid)}
 							/>
 						))}
 				</ScrollView>
@@ -103,17 +111,14 @@ function ChatRoom(props) {
 				<View style={styles.inputContainer}>
 					<TextInput
 						value={formValue}
-						onChangeText={(text) => setFormValue(text)}
-						placeholder="Say something nice"
-						style={styles.input}
+						onChangeText={setFormValue}
+						onSubmitEditing={sendMessage}
 						onKeyPress={handleKeyPress}
+						placeholder="Type your message"
+						style={styles.input}
 					/>
 
-					<TouchableOpacity
-						style={styles.buttonStyle}
-						disabled={!formValue}
-						onPress={sendMessage}
-					>
+					<TouchableOpacity onPress={sendMessage} style={styles.buttonStyle}>
 						<Text style={styles.buttonText}>Send</Text>
 					</TouchableOpacity>
 				</View>
@@ -135,7 +140,6 @@ const styles = StyleSheet.create({
 		backgroundColor: "#424242",
 	},
 	scrollViewContent: {
-		paddingVertical: 10,
 		paddingHorizontal: 16,
 	},
 	buttonText: {

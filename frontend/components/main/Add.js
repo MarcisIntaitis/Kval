@@ -10,6 +10,7 @@ export default function Add({ navigation }) {
 	const [image, setImage] = useState(null);
 	const [type, setType] = useState(Camera.Constants.Type.Back);
 	const [isImageSelected, setIsImageSelected] = useState(false);
+	const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
 
 	useEffect(() => {
 		(async () => {
@@ -100,21 +101,22 @@ export default function Add({ navigation }) {
 						<View style={styles.camContainer}>
 							<Camera
 								style={styles.camera}
-								type={type}
+								type={cameraType}
 								ref={(ref) => setCamera(ref)}
 							/>
 						</View>
 						<Button
 							title="Flip Camera"
 							onPress={() =>
-								setType(
-									type === Camera.Constants.Type.Back
-										? Camera.Constants.Type.Front
-										: Camera.Constants.Type.Back
+								setCameraType(
+									cameraType === Camera.Constants.Type.back
+										? Camera.Constants.Type.front
+										: Camera.Constants.Type.back
 								)
 							}
 							style={styles.button}
 						/>
+
 						<Button
 							title="Take Picture"
 							onPress={() => takePicture()}

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React from "react";
 import {
 	View,
 	Text,
@@ -13,7 +13,8 @@ import "firebase/compat/firestore";
 
 const windowWidth = Dimensions.get("window").width;
 
-function ChatMessage(props) {
+const ChatMessage = React.memo(function ChatMessage(props) {
+	console.log("funny");
 	const { text, uid, createdAt } = props.message;
 	const { displayName, photoURL } = props;
 
@@ -55,12 +56,7 @@ function ChatMessage(props) {
 			]}
 		>
 			{messageClass === "received" && (
-				<Image
-					source={{
-						uri: photoURL,
-					}}
-					style={styles.avatar}
-				/>
+				<Image source={{ uri: photoURL }} style={styles.avatar} />
 			)}
 
 			<View style={messageBubbleStyle}>
@@ -70,7 +66,7 @@ function ChatMessage(props) {
 			</View>
 		</View>
 	);
-}
+});
 
 const getRandomColor = (uid) => {
 	// Generate a random color based on the user ID
