@@ -17,6 +17,7 @@ package-lock.json
 config.js
 # macOS
 .DS_Store
+.gitignore
 
 # Temporary files created by Metro to check the health of the file watcher
 .metro-health-check*

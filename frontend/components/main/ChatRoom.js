@@ -6,17 +6,17 @@ import {
 	TouchableOpacity,
 	ScrollView,
 	StyleSheet,
-	Dimensions,
 } from "react-native";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 import { serverTimestamp } from "firebase/firestore";
+import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
 import ChatMessage from "./ChatMessage";
 
-function ChatRoom(props) {
+function ChatRoom() {
 	const dummy = useRef();
 	const messagesRef = firebase.firestore().collection("messages");
 	const query = messagesRef.orderBy("createdAt");

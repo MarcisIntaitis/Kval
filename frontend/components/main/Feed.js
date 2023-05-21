@@ -54,10 +54,18 @@ function Feed(props) {
 
 	const renderPost = ({ item }) => (
 		<View style={styles.postContainer}>
-			<View style={styles.postHeader}>
-				<Image style={styles.profilePicture} source={item.user.profilePic} />
+			<TouchableOpacity
+				style={styles.postHeader}
+				onPress={() =>
+					props.navigation.navigate("Profile", { uid: item.user.uid })
+				}
+			>
+				<Image
+					style={styles.profilePicture}
+					source={{ uri: item.user.profilePic }}
+				/>
 				<Text style={styles.userName}>{item.user && item.user.name}</Text>
-			</View>
+			</TouchableOpacity>
 			<Image
 				style={[
 					styles.image,
@@ -153,18 +161,23 @@ const styles = StyleSheet.create({
 	},
 	postHeader: {
 		padding: 16,
+		paddingLeft: 10,
+		flexDirection: "row",
+		alignItems: "center",
 	},
 	userName: {
 		fontSize: 16,
 		fontWeight: "bold",
+		paddingLeft: 10,
 		color: "#FFFFFF",
 	},
 	profilePicture: {
-		width: 40,
-		height: 40,
-		borderRadius: 20,
-		marginRight: 10,
-		backgroundColor: "black",
+		aspectRatio: 1,
+		resizeMode: "cover",
+		width: 50,
+		height: 50,
+		borderRadius: 8,
+		backgroundColor: "#FFFFFF",
 	},
 	image: {
 		aspectRatio: 1,

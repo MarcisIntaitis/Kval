@@ -8,8 +8,8 @@ export default function Add({ navigation }) {
 	const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
 	const [camera, setCamera] = useState(null);
 	const [image, setImage] = useState(null);
-	const [type, setType] = useState(Camera.Constants.Type.Back);
 	const [isImageSelected, setIsImageSelected] = useState(false);
+	const [type, setType] = useState(Camera.Constants.Type.Back);
 	const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
 
 	useEffect(() => {

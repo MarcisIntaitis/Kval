@@ -14,8 +14,9 @@ import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
 import { connect } from "react-redux";
-import { Feather } from "@expo/vector-icons"; // Import Feather icon library
+import { Feather } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 
 function Profile(props) {
 	const [userPosts, setUserPosts] = useState([]);
@@ -25,10 +26,124 @@ function Profile(props) {
 	const [displayNameInput, setDisplayNameInput] = useState("");
 	const [profilePicURL, setProfilePicURL] = useState("");
 	const [isModalVisible, setIsModalVisible] = useState(false);
+	const [image, setImage] = useState(null);
+	const [isImageSelected, setIsImageSelected] = useState(false);
+
+	const pickPfp = async () => {
+		let result = await ImagePicker.launchImageLibraryAsync({
+			mediaTypes: ImagePicker.MediaTypeOptions.Images,
+			allowsEditing: true,
+			aspect: [1, 1],
+			quality: 1,
+		});
+
+		if (!result.cancelled) {
+			setImage(result.uri);
+			setIsImageSelected(true);
+		}
+	};
+
+	//Upload the selected image to storage and set the profilePic value to the link of the image
+	const uploadPfp = async (image) => {
+		const currentUser = firebase.auth().currentUser;
+		const userId = currentUser.uid;
+		const storageRef = firebase.storage().ref();
+
+		const childPath = `profilePictures/${userId}/${Math.random().toString(36)}`;
+		const response = await fetch(image);
+		const blob = await response.blob();
+
+		const task = storageRef.child(childPath).put(blob);
+
+		const taskProgress = (snapshot) => {
+			console.log(`transferred: ${snapshot.bytesTransferred}`);
+		};
+
+		const taskCompleted = () => {
+			task.snapshot.ref.getDownloadURL().then((snapshot) => {
+				savePfpData(snapshot, childPath);
+			});
+		};
+
+		const taskError = (snapshot) => {
+			console.log(snapshot);
+		};
+
+		task.on("state_changed", taskProgress, taskError, taskCompleted);
+	};
+
+	const savePfpData = (downloadURL, childPath) => {
+		const currentUser = firebase.auth().currentUser;
+		const userId = currentUser.uid;
+		const storageRef = firebase.storage().ref();
+
+		// Retrieve the user document
+		firebase
+			.firestore()
+			.collection("users")
+			.doc(userId)
+			.get()
+			.then((doc) => {
+				const userData = doc.data();
+
+				// Get the current profile picture name from the url
+				const currentProfilePic = userData.profilePic;
+
+				var picURL = currentProfilePic.substring(
+					currentProfilePic.lastIndexOf(".") - 1
+				);
+				const extractedString = picURL.split("?")[0];
+
+				// Delete the old profile picture if it exists and its date is older than the new picture
+				if (currentProfilePic) {
+					// Delete the old profile picture from storage
+					storageRef
+						.child(`profilePictures/${userId}/${extractedString}`)
+						.delete()
+						.then(() => {
+							// Update the profile picture and date reference in Firestore
+							firebase
+								.firestore()
+								.collection("users")
+								.doc(userId)
+								.update({
+									profilePic: downloadURL,
+								})
+								.then(() => {
+									setProfilePicURL(downloadURL);
+								})
+								.catch((error) => {
+									console.log("Error updating profile picture:", error);
+								});
+						})
+						.catch((error) => {
+							console.log("Error deleting old profile picture:", error);
+						});
+				} else {
+					// If there is no current profile picture or the current picture is up to date, directly update the profile picture and date reference in Firestore
+					firebase
+						.firestore()
+						.collection("users")
+						.doc(userId)
+						.update({ profilePic: downloadURL })
+						.then(() => {
+							console.log("Profile picture updated successfully");
+							setProfilePicURL(downloadURL);
+						})
+						.catch((error) => {
+							console.log("Error updating profile picture:", error);
+						});
+				}
+			})
+			.catch((error) => {
+				console.log("Error getting user data:", error);
+			});
+	};
 
 	useEffect(() => {
 		const { currentUser, posts } = props;
 
+		//Fetches user data to display
 		if (props.route.params.uid === firebase.auth().currentUser.uid) {
 			setUser(currentUser);
 			setUserPosts(posts);
@@ -71,33 +186,18 @@ function Profile(props) {
 		} else {
 			setFollowing(false);
 		}
-
-		firebase
-			.firestore()
-			.collection("users")
-			.doc(props.route.params.uid)
-			.collection("settings")
-			.doc("profile")
-			.get()
-			.then((snapshot) => {
-				if (snapshot.exists) {
-					setSettings(snapshot.data());
-				} else {
-					console.log("Settings not found");
-				}
-			});
 	}, [props.route.params.uid, props.following]);
 
 	const onSaveSettings = () => {
 		let trimmedName = displayNameInput.trim();
 		if (trimmedName === "") {
 			trimmedName = user.name;
-			if (trimmedName === "‎") {
+			if (trimmedName === "") {
 				console.log("Display name cannot be empty");
 				return;
 			}
 		}
-		setProfilePic(profilePicURL); // Call setProfilePic with profilePicURL state
+
 		firebase
 			.firestore()
 			.collection("users")
@@ -111,6 +211,12 @@ function Profile(props) {
 			.catch((error) => {
 				console.log("Error updating name:", error);
 			});
+	};
+
+	const handleSave = () => {
+		if (image) {
+			uploadPfp(image);
+		}
 	};
 
 	const onFollow = () => {
@@ -133,21 +239,6 @@ function Profile(props) {
 			.delete();
 	};
 
-	const setProfilePic = (profilePicUrl) => {
-		firebase
-			.firestore()
-			.collection("users")
-			.doc(props.route.params.uid)
-			.update({ profilePic: profilePicUrl })
-			.then(() => {
-				console.log("Profile picture updated successfully");
-				setProfilePicURL(profilePicUrl);
-			})
-			.catch((error) => {
-				console.log("Error updating profile picture:", error);
-			});
-	};
-
 	const onLogout = () => {
 		firebase.auth().signOut();
 	};
@@ -160,11 +251,14 @@ function Profile(props) {
 		<View style={styles.container}>
 			<View style={styles.profileContainer}>
 				<View style={styles.containerInfo}>
-					<Image style={styles.profilePicture} source={user.profilePic} />
+					<Image
+						style={styles.profilePicture}
+						source={{ uri: user.profilePic }}
+					/>
 					<Text style={styles.userName}>{user.name}</Text>
 
 					{props.route.params.uid !== firebase.auth().currentUser.uid ? (
-						<View>
+						<View style={styles.followButtons}>
 							{following ? (
 								<Button title="Unfollow" onPress={() => onUnfollow()} />
 							) : (
@@ -195,6 +289,7 @@ function Profile(props) {
 										uid: props.route.params.uid,
 									})
 								}
+								activeOpacity={0.8}
 							>
 								<Image
 									style={styles.image}
@@ -218,22 +313,37 @@ function Profile(props) {
 								onChangeText={(text) => setDisplayNameInput(text)}
 							/>
 						</View>
-						<View style={styles.modalItem}>
-							<TextInput
-								style={styles.modalInput}
-								value={profilePicURL}
-								placeholder="Profile pic url"
-								onChangeText={(text) => setProfilePicURL(text)}
+
+						<View style={styles.pfpSettingsContainer}>
+							<Image
+								style={styles.profilePictureSelect}
+								source={{ uri: image }}
 							/>
+							<View style={styles.profilePicUpload}>
+								<TouchableOpacity
+									style={styles.buttonStyle}
+									title="Pick from gallery"
+									onPress={() => pickPfp()}
+								>
+									<Text style={styles.buttonText}>
+										Select image from gallery
+									</Text>
+								</TouchableOpacity>
+							</View>
 						</View>
 
-						<TouchableOpacity
-							style={styles.buttonStyle}
-							onPress={onSaveSettings}
-							title="Send"
-						>
-							<Text style={styles.buttonText}>Save Settings</Text>
-						</TouchableOpacity>
+						<View style={styles.saveSettingsConainer}>
+							<TouchableOpacity
+								style={styles.buttonStyle}
+								onPress={() => {
+									onSaveSettings();
+									handleSave();
+								}}
+								title="Send"
+							>
+								<Text style={styles.buttonText}>Save Settings</Text>
+							</TouchableOpacity>
+						</View>
 
 						<TouchableOpacity
 							style={styles.settingsCloseIconContainer}
@@ -280,6 +390,14 @@ const styles = StyleSheet.create({
 		marginRight: 10,
 		backgroundColor: "black",
 	},
+	profilePictureSelect: {
+		width: 140,
+		height: 140,
+		borderRadius: 20,
+		marginRight: 10,
+		backgroundColor: "black",
+		marginTop: 20,
+	},
 	profileContainer: {
 		borderRadius: 12,
 		flex: 1,
@@ -289,7 +407,6 @@ const styles = StyleSheet.create({
 		backgroundColor: "#424242",
 	},
 	containerInfo: {
-		alignItems: "center",
 		flexDirection: "row",
 		marginHorizontal: 20,
 		marginBottom: 20,
@@ -310,6 +427,17 @@ const styles = StyleSheet.create({
 		top: 5,
 		left: 10,
 		padding: 10,
+	},
+	pfpSettingsContainer: {
+		flex: 1,
+		flexDirection: "column",
+		alignItems: "center",
+	},
+	profilePicUpload: {
+		width: 100,
+		paddingTop: 10,
+		alignItems: "center",
+		alignSelf: "center",
 	},
 	logoutIconContainer: {
 		position: "absolute",
@@ -336,18 +464,14 @@ const styles = StyleSheet.create({
 		borderRadius: 12,
 		width: "100%",
 		maxWidth: 900,
-		alignItems: "center",
 	},
 	buttonStyle: {
-		position: "absolute",
 		backgroundColor: "#9ade7c",
 		paddingVertical: 8,
 		paddingHorizontal: 16,
-		bottom: 20,
 		width: 300,
 		borderRadius: 20,
 		alignItems: "center",
-		justifyContent: "center",
 	},
 	modalTitle: {
 		fontSize: 18,
@@ -355,6 +479,7 @@ const styles = StyleSheet.create({
 		fontWeight: "bold",
 		marginBottom: 10,
 		color: "white",
+		alignSelf: "center",
 	},
 	modalInput: {
 		borderRadius: 5,
@@ -374,5 +499,15 @@ const styles = StyleSheet.create({
 	modalLabel: {
 		flex: 1,
 		color: "white",
+	},
+	saveSettingsConainer: {
+		position: "absolute",
+		bottom: 20,
+		alignItems: "center",
+		alignSelf: "center",
+	},
+	followButtons: {
+		position: "absolute",
+		right: 20,
 	},
 });

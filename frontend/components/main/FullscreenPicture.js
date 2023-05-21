@@ -10,12 +10,14 @@ import {
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 export default function Comment(props) {
 	const [comments, setComments] = useState([]);
 	const [postId, setPostId] = useState("");
 	const [postImage, setPostImage] = useState("");
 	const [caption, setCaption] = useState("");
+	const [username, setUsername] = useState("");
 
 	useEffect(() => {
 		if (props.route.params.postId !== postId) {
@@ -35,6 +37,21 @@ export default function Comment(props) {
 				})
 				.catch((error) => {
 					console.log("Error fetching post:", error);
+				});
+
+			firebase
+				.firestore()
+				.collection("users")
+				.doc(props.route.params.uid)
+				.get()
+				.then((snapshot) => {
+					const userData = snapshot.data();
+					if (userData) {
+						setUsername(userData.username);
+					}
+				})
+				.catch((error) => {
+					console.log("Error fetching user:", error);
 				});
 
 			firebase
@@ -64,18 +81,37 @@ export default function Comment(props) {
 	return (
 		<View style={styles.container}>
 			<View style={styles.postContainer}>
+				<Text style={styles.username}>{username}</Text>
 				<Image source={{ uri: postImage }} style={styles.postImage} />
 				<Text style={styles.caption}>{caption}</Text>
-				<Text
-					onPress={() =>
-						props.navigation.navigate("Comment", {
-							postId: postId,
-							uid: props.route.params.uid,
-						})
-					}
-				>
-					<Text style={styles.viewComments}>View Comments...</Text>
-				</Text>
+				<View style={styles.postFooter}>
+					<TouchableOpacity
+						onPress={() => {
+							// Handle like/dislike logic here
+						}}
+					>
+						<MaterialCommunityIcons
+							name={"heart-outline"}
+							color={"#333333"}
+							size={26}
+						/>
+					</TouchableOpacity>
+					<Text style={styles.likesCount}>{comments.length} likes</Text>
+					<TouchableOpacity
+						onPress={() =>
+							props.navigation.navigate("Comment", {
+								postId: postId,
+								uid: props.route.params.uid,
+							})
+						}
+					>
+						<MaterialCommunityIcons
+							name="comment-outline"
+							color="#007AFF"
+							size={26}
+						/>
+					</TouchableOpacity>
+				</View>
 			</View>
 		</View>
 	);

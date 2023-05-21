@@ -69,33 +69,27 @@ const ChatMessage = React.memo(function ChatMessage(props) {
 });
 
 const getRandomColor = (uid) => {
-	// Generate a random color based on the user ID
-	const hash = uid.split("").reduce((acc, char) => {
-		acc = (acc << 5) - acc + char.charCodeAt(0);
-		return acc & acc;
-	}, 0);
+	console.log(uid);
+	const hash = Array.from(uid).reduce(
+		(acc, char) => (acc << 5) - acc + char.charCodeAt(0),
+		0
+	);
+	const color = "#" + (hash & 0xffffff).toString(16).padStart(6, "0");
+	const minBrightness = 0.8;
 
-	const color = "#" + ((hash >> 0) & 0xffffff).toString(16).padStart(6, "0");
-
-	const minBrightness = 0.7; // Minimum brightness value (adjust as needed)
-
-	// Convert color to HSL
 	const rgbToHsl = (r, g, b) => {
-		r /= 255;
-		g /= 255;
-		b /= 255;
+		[r, g, b] = [r, g, b].map((c) => c / 255);
 
 		const max = Math.max(r, g, b);
 		const min = Math.min(r, g, b);
-		let h,
-			s,
-			l = (max + min) / 2;
+		const d = max - min;
+		const l = (max + min) / 2;
 
 		if (max === min) {
-			h = s = 0; // achromatic
+			return [0, 0, l];
 		} else {
-			const d = max - min;
-			s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+			let h;
+			const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
 
 			switch (max) {
 				case r:
@@ -110,28 +104,25 @@ const getRandomColor = (uid) => {
 			}
 
 			h /= 6;
+			return [h, s, l];
 		}
-
-		return [h, s, l];
 	};
 
 	const hslColor = rgbToHsl(
-		parseInt(color.substr(1, 2), 16),
-		parseInt(color.substr(3, 2), 16),
-		parseInt(color.substr(5, 2), 16)
+		parseInt(color.slice(1, 3), 16),
+		parseInt(color.slice(3, 5), 16),
+		parseInt(color.slice(5, 7), 16)
 	);
 
-	// Adjust brightness if below the minimum value
 	if (hslColor[2] < minBrightness) {
 		hslColor[2] = minBrightness;
 	}
 
-	// Convert HSL back to RGB
 	const hslToRgb = (h, s, l) => {
 		let r, g, b;
 
 		if (s === 0) {
-			r = g = b = l; // achromatic
+			r = g = b = l;
 		} else {
 			const hue2rgb = (p, q, t) => {
 				if (t < 0) t += 1;
@@ -149,17 +140,15 @@ const getRandomColor = (uid) => {
 			b = hue2rgb(p, q, h - 1 / 3);
 		}
 
-		const toHex = (c) => {
-			const hex = Math.round(c * 255).toString(16);
-			return hex.length === 1 ? "0" + hex : hex;
-		};
+		const toHex = (c) =>
+			Math.round(c * 255)
+				.toString(16)
+				.padStart(2, "0");
 
 		return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 	};
 
-	const adjustedColor = hslToRgb(hslColor[0], hslColor[1], hslColor[2]);
-
-	return adjustedColor;
+	return hslToRgb(...hslColor);
 };
 
 const styles = StyleSheet.create({
