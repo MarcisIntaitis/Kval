@@ -3,14 +3,19 @@
     "requireCommit": true
   },
   "build": {
-    "development": {
-      "distribution": "internal",
+    "preview": {
       "android": {
         "buildType": "apk"
       }
     },
-    "production": {
-      "distribution": "store"
-    }
+    "preview2": {
+      "android": {
+        "gradleCommand": ":app:assembleRelease --stacktrace"
+      }
+    },
+    "preview3": {
+      "developmentClient": true
+    },
+    "production": {}
   }
 }
