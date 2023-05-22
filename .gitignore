@@ -12,8 +12,6 @@ npm-debug.*
 .vscode/
 web-build/
 yarn.lock
-package.json
-package-lock.json
 # macOS
 .DS_Store
 .gitignore
