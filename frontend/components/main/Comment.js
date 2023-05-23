@@ -21,8 +21,21 @@ const Comment = (props) => {
 	const [comments, setComments] = useState([]);
 	const [postId, setPostId] = useState("");
 	const [text, setText] = useState("");
+	const [roles, setRoles] = useState("");
 
 	useEffect(() => {
+		const fetchRoleData = async () => {
+			const userRoleSnapshot = await firebase
+				.firestore()
+				.collection("users")
+				.doc(firebase.auth().currentUser.uid)
+				.get();
+			const roleData = userRoleSnapshot.data();
+			if (roleData) {
+				setRoles(roleData.role);
+			}
+		};
+		fetchRoleData();
 		const matchUserToComment = (comments) => {
 			if (props.users === undefined) {
 				// Handle the case when props.users is undefined
@@ -65,6 +78,24 @@ const Comment = (props) => {
 		} else {
 			matchUserToComment(comments);
 		}
+
+		const unsubscribe = firebase
+			.firestore()
+			.collection("posts")
+			.doc(props.route.params.uid)
+			.collection("userPosts")
+			.doc(props.route.params.postId)
+			.collection("comments")
+			.onSnapshot((snapshot) => {
+				let comments = snapshot.docs.map((doc) => {
+					const data = doc.data();
+					const id = doc.id;
+					return { id, ...data };
+				});
+				matchUserToComment(comments);
+			});
+
+		return () => unsubscribe();
 	}, [props.route.params.postId, props.users]);
 
 	const onCommentSend = () => {
@@ -103,7 +134,8 @@ const Comment = (props) => {
 								<Text style={styles.userName}>{item.user.name}</Text>
 							) : null}
 							<Text style={styles.commentText}>{item.text}</Text>
-							{item.creator === firebase.auth().currentUser.uid ? (
+							{item.creator === firebase.auth().currentUser.uid ||
+							roles === "admin" ? (
 								<TouchableOpacity
 									onPress={() => onDeleteComment(item.id)}
 									style={styles.deleteButton}

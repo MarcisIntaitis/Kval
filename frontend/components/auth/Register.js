@@ -1,5 +1,11 @@
 import React, { Component } from "react";
-import { View, Button, TextInput } from "react-native";
+import {
+	View,
+	TouchableOpacity,
+	TextInput,
+	StyleSheet,
+	Text,
+} from "react-native";
 import firebase from "firebase/compat/app";
 export class Register extends Component {
 	constructor(props) {
@@ -39,25 +45,87 @@ export class Register extends Component {
 	// Registration form
 	render() {
 		return (
-			<View>
-				<TextInput
-					placeholder="name"
-					onChangeText={(name) => this.setState({ name })}
-				/>
-				<TextInput
-					placeholder="email"
-					onChangeText={(email) => this.setState({ email })}
-				/>
-				<TextInput
-					placeholder="password"
-					secureTextEntry={true}
-					onChangeText={(password) => this.setState({ password })}
-				/>
+			<View style={styles.container}>
+				<View style={styles.registerContainer}>
+					<View style={styles.registerContainerText}>
+						<Text style={styles.registerText}>Sign up</Text>
+					</View>
+					<TextInput
+						placeholder="name"
+						onChangeText={(name) => this.setState({ name })}
+						style={styles.inputContainer}
+					/>
+					<TextInput
+						placeholder="email"
+						onChangeText={(email) => this.setState({ email })}
+						style={styles.inputContainer}
+					/>
+					<TextInput
+						placeholder="password"
+						secureTextEntry={true}
+						onChangeText={(password) => this.setState({ password })}
+						style={styles.inputContainer}
+					/>
 
-				<Button onPress={() => this.onSignUp()} title="Sign Up" />
+					<TouchableOpacity
+						onPress={() => this.onSignUp()}
+						style={styles.buttonStyle}
+					>
+						<Text>Register</Text>
+					</TouchableOpacity>
+				</View>
 			</View>
 		);
 	}
 }
+
+const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		justifyContent: "center",
+		alignItems: "center",
+		backgroundColor: "#333",
+	},
+	registerContainer: {
+		justifyContent: "center",
+		alignItems: "center",
+		flex: 1,
+		width: "100%",
+		maxWidth: 600,
+		backgroundColor: "#424242",
+	},
+	registerContainerText: {
+		flex: 0.1,
+		justifyContent: "flex-end",
+		alignItems: "baseline",
+		width: "100%",
+		maxWidth: 400,
+	},
+	registerText: {
+		color: "#CFCFCF",
+		fontSize: 48,
+		fontWeight: "bold",
+		paddingBottom: 10,
+	},
+	buttonStyle: {
+		backgroundColor: "#9ade7c",
+		paddingVertical: 8,
+		paddingHorizontal: 16,
+		width: 200,
+		marginVertical: 4,
+		borderRadius: 20,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	inputContainer: {
+		width: "100%",
+		maxWidth: 400,
+		height: 50,
+		backgroundColor: "#D9D9D9",
+		borderRadius: 20,
+		paddingLeft: 10,
+		marginVertical: 4,
+	},
+});
 
 export default Register;

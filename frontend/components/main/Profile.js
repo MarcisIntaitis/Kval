@@ -22,7 +22,6 @@ function Profile(props) {
 	const [userPosts, setUserPosts] = useState([]);
 	const [user, setUser] = useState(null);
 	const [following, setFollowing] = useState(false);
-	const [settings, setSettings] = useState(null);
 	const [displayNameInput, setDisplayNameInput] = useState("");
 	const [profilePicURL, setProfilePicURL] = useState("");
 	const [isModalVisible, setIsModalVisible] = useState(false);
@@ -72,10 +71,11 @@ function Profile(props) {
 		task.on("state_changed", taskProgress, taskError, taskCompleted);
 	};
 
-	const savePfpData = (downloadURL, childPath) => {
+	const savePfpData = async (downloadURL, childPath) => {
 		const currentUser = firebase.auth().currentUser;
 		const userId = currentUser.uid;
 		const storageRef = firebase.storage().ref();
+		setProfilePicURL(downloadURL);
 
 		// Retrieve the user document
 		firebase
@@ -139,7 +139,6 @@ function Profile(props) {
 				console.log("Error getting user data:", error);
 			});
 	};
-
 	useEffect(() => {
 		const { currentUser, posts } = props;
 
@@ -215,6 +214,7 @@ function Profile(props) {
 
 	const handleSave = () => {
 		if (image) {
+			setProfilePicURL(image); // Update the profile picture URL immediately on the user side
 			uploadPfp(image);
 		}
 	};

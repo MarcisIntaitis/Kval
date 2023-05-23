@@ -5,6 +5,7 @@ import firebase from "firebase/compat/app";
 import "firebase/firestore";
 import "firebase/auth";
 import "firebase/compat/storage";
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default function Save(props) {
 	const [caption, setCaption] = useState("");
@@ -14,6 +15,7 @@ export default function Save(props) {
 		const childPath = `post/${
 			firebase.auth().currentUser.uid
 		}/${Math.random().toString(36)}`;
+		props.navigation.popToTop();
 
 		const uri = props.route.params.image;
 		const response = await fetch(uri);
@@ -26,7 +28,7 @@ export default function Save(props) {
 		};
 
 		const taskCompleted = () => {
-			task.snapshot.ref.getDownloadURL().then((snapshot) => {
+			task.snapshot.ref.getDownloadURL().then(async (snapshot) => {
 				savePostData(snapshot);
 			});
 		};
@@ -49,9 +51,6 @@ export default function Save(props) {
 				downloadURL,
 				caption,
 				creation: firebase.firestore.FieldValue.serverTimestamp(),
-			})
-			.then(() => {
-				props.navigation.popToTop();
 			});
 	};
 

@@ -14,7 +14,6 @@ import "firebase/compat/firestore";
 const windowWidth = Dimensions.get("window").width;
 
 const ChatMessage = React.memo(function ChatMessage(props) {
-	console.log("funny");
 	const { text, uid, createdAt } = props.message;
 	const { displayName, photoURL } = props;
 
@@ -69,7 +68,6 @@ const ChatMessage = React.memo(function ChatMessage(props) {
 });
 
 const getRandomColor = (uid) => {
-	console.log(uid);
 	const hash = Array.from(uid).reduce(
 		(acc, char) => (acc << 5) - acc + char.charCodeAt(0),
 		0

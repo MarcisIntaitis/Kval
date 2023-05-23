@@ -4,7 +4,7 @@ import {
 	Text,
 	View,
 	Image,
-	FlatList,
+	ScrollView,
 	TouchableOpacity,
 	Platform,
 	Dimensions,
@@ -14,7 +14,8 @@ import firebase from "firebase/compat/app";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 function Feed(props) {
-	const [posts, setPosts] = useState([]);
+	const [visiblePosts, setVisiblePosts] = useState([]);
+	const [allPosts, setAllPosts] = useState([]);
 
 	useEffect(() => {
 		if (
@@ -24,9 +25,19 @@ function Feed(props) {
 			props.feed.sort(function (x, y) {
 				return y.creation - x.creation;
 			});
-			setPosts(props.feed);
+			setAllPosts(props.feed);
+			setVisiblePosts(props.feed.slice(0, 2)); // Initially show 10 posts
 		}
 	}, [props.usersFollowingLoaded, props.feed]);
+
+	const loadMorePosts = () => {
+		const currentVisibleCount = visiblePosts.length;
+		const nextPosts = allPosts.slice(
+			currentVisibleCount,
+			currentVisibleCount + 2
+		);
+		setVisiblePosts((prevPosts) => [...prevPosts, ...nextPosts]);
+	};
 
 	const onLikePress = (userId, postId) => {
 		firebase
@@ -52,8 +63,8 @@ function Feed(props) {
 			.delete();
 	};
 
-	const renderPost = ({ item }) => (
-		<View style={styles.postContainer}>
+	const renderPost = (item) => (
+		<View style={styles.postContainer} key={item.id}>
 			<TouchableOpacity
 				style={styles.postHeader}
 				onPress={() =>
@@ -115,12 +126,19 @@ function Feed(props) {
 
 	return (
 		<View style={styles.container}>
-			<FlatList
-				data={posts}
-				renderItem={renderPost}
-				keyExtractor={(item) => item.id}
+			<ScrollView
 				contentContainerStyle={styles.feed}
-			/>
+				onScroll={(event) => {
+					const offsetY = event.nativeEvent.contentOffset.y;
+					const contentHeight = event.nativeEvent.contentSize.height;
+					if (offsetY >= contentHeight - 2 * Dimensions.get("window").height) {
+						loadMorePosts();
+					}
+				}}
+				scrollEventThrottle={400}
+			>
+				{visiblePosts.map(renderPost)}
+			</ScrollView>
 		</View>
 	);
 }
@@ -140,7 +158,7 @@ const styles = StyleSheet.create({
 	container: {
 		paddingTop: 20,
 		flex: 1,
-		backgroundColor: "#333", // Set the background color to dark
+		backgroundColor: "#333",
 	},
 	feed: {
 		paddingBottom: 16,

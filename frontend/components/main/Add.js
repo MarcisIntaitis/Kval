@@ -11,6 +11,7 @@ export default function Add({ navigation }) {
 	const [isImageSelected, setIsImageSelected] = useState(false);
 	const [type, setType] = useState(Camera.Constants.Type.Back);
 	const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
+	const refresh = () => window.location.reload(true);
 
 	useEffect(() => {
 		(async () => {
