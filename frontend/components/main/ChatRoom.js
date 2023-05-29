@@ -114,7 +114,7 @@ function ChatRoom() {
 						onChangeText={setFormValue}
 						onSubmitEditing={sendMessage}
 						onKeyPress={handleKeyPress}
-						placeholder="Type your message"
+						placeholder="Write your message"
 						style={styles.input}
 					/>
 

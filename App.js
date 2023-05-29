@@ -109,7 +109,7 @@ const App = () => {
 							<Stack.Screen
 								name="Main"
 								component={MainScreen}
-								options={{ headerTitle: "thum" }} // Set the header title
+								options={{ headerTitle: "App name" }} // Set the header title
 							/>
 							<Stack.Screen
 								name="Add"
@@ -124,7 +124,7 @@ const App = () => {
 							<Stack.Screen
 								name="Comment"
 								component={CommentScreen}
-								options={{ headerTitle: "Comment" }} // Set the header title
+								options={{ headerTitle: "Comments" }} // Set the header title
 							/>
 							<Stack.Screen
 								name="Post"

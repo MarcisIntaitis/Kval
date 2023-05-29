@@ -34,6 +34,9 @@ export class Register extends Component {
 					.set({
 						name,
 						email,
+						role: "user",
+						bio: "",
+						profilePic: "",
 					});
 				console.log(results);
 			})

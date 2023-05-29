@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
 	View,
 	Text,
@@ -6,6 +6,7 @@ import {
 	StyleSheet,
 	Dimensions,
 	Platform,
+	TouchableOpacity,
 } from "react-native";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
@@ -16,8 +17,23 @@ const windowWidth = Dimensions.get("window").width;
 const ChatMessage = React.memo(function ChatMessage(props) {
 	const { text, uid, createdAt } = props.message;
 	const { displayName, photoURL } = props;
-
+	const [roles, setRoles] = useState("");
 	const currentUserUID = firebase.auth().currentUser.uid;
+	const [replyMessageId, setReplyMessageId] = useState(null);
+
+	const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+	const fetchRoleData = async () => {
+		const userRoleSnapshot = await firebase
+			.firestore()
+			.collection("users")
+			.doc(firebase.auth().currentUser.uid)
+			.get();
+		const roleData = userRoleSnapshot.data();
+		if (roleData) {
+			setRoles(roleData.role);
+		}
+	};
+	fetchRoleData();
 
 	const messageClass = uid === currentUserUID ? "sent" : "received";
 
@@ -45,7 +61,26 @@ const ChatMessage = React.memo(function ChatMessage(props) {
 		{
 			maxWidth: (2 / 3) * windowWidth,
 		},
+		replyMessageId === props.message.id && styles.replyMessageText,
 	];
+
+	const handleToggleDropdown = async () => {
+		setIsDropdownVisible((prevState) => !prevState);
+	};
+
+	const handleHideDropdown = () => {
+		setIsDropdownVisible(false);
+	};
+
+	const handleDeleteMessage = (id) => {
+		firebase.firestore().collection("messages").doc(id).delete();
+		setIsDropdownVisible(false);
+	};
+
+	const handleReplyMessage = (id) => {
+		setReplyMessageId(id);
+		setIsDropdownVisible(false);
+	};
 
 	return (
 		<View
@@ -57,12 +92,44 @@ const ChatMessage = React.memo(function ChatMessage(props) {
 			{messageClass === "received" && (
 				<Image source={{ uri: photoURL }} style={styles.avatar} />
 			)}
-
-			<View style={messageBubbleStyle}>
-				<Text style={styles.messageUsername}>{displayName}</Text>
-				<Text style={messageTextStyle}>{text}</Text>
-				<Text style={styles.messageTime}>{messageTime}</Text>
-			</View>
+			<TouchableOpacity
+				onLongPress={handleToggleDropdown}
+				onPress={handleHideDropdown}
+				style={styles.dropdownButton}
+			>
+				<View style={messageBubbleStyle}>
+					<View style={styles.messageHeader}>
+						<Text style={styles.messageUsername}>{displayName}</Text>
+					</View>
+					<Text style={messageTextStyle}>{text}</Text>
+					<Text style={styles.messageTime}>{messageTime}</Text>
+				</View>
+				{replyMessageId === props.message.id && (
+					<Text style={styles.replyMessageText}>
+						Replying to: {props.message.text}
+					</Text>
+				)}
+			</TouchableOpacity>
+			{isDropdownVisible && (
+				<View style={styles.dropdownContainerStyle}>
+					<View style={styles.dropdownBox}>
+						{currentUserUID === props.message.uid || roles === "admin" ? (
+							<TouchableOpacity
+								onPress={() => handleDeleteMessage(props.message.id)}
+								style={styles.dropdownOption}
+							>
+								<Text style={styles.dropdownOptionText}>Delete</Text>
+							</TouchableOpacity>
+						) : null}
+						<TouchableOpacity
+							onPress={() => handleReplyMessage(props.message.id)}
+							style={styles.dropdownOption}
+						>
+							<Text style={styles.dropdownOptionText}>Reply</Text>
+						</TouchableOpacity>
+					</View>
+				</View>
+			)}
 		</View>
 	);
 });
@@ -153,55 +220,71 @@ const styles = StyleSheet.create({
 	messageContainer: {
 		flexDirection: "row",
 		alignItems: "flex-start",
-		marginVertical: 6,
+		marginBottom: 8,
 	},
 	sentMessageContainer: {
 		flexDirection: "row-reverse",
 	},
 	avatar: {
-		width: 40,
-		height: 40,
-		borderRadius: 20,
-		marginRight: 10,
+		width: 36,
+		height: 36,
+		borderRadius: 18,
+		marginRight: 8,
 	},
 	messageBubble: {
-		backgroundColor: "#9ade7c",
-		padding: 10,
-		borderRadius: 12,
-		shadowColor: "#000",
-		shadowOffset: { width: 0, height: 2 },
-		shadowOpacity: 0.2,
-		shadowRadius: 2,
-		elevation: 2,
+		borderRadius: 16,
+		paddingVertical: 8,
+		paddingHorizontal: 12,
 	},
 	sentMessageBubble: {
 		backgroundColor: "#87CEEB",
 	},
-	messageUsername: {
+	messageHeader: {
+		flexDirection: "row",
+		alignItems: "center",
 		marginBottom: 4,
+	},
+	messageUsername: {
 		fontWeight: "bold",
-		color: "#333",
+		marginRight: 4,
 	},
 	messageText: {
 		fontSize: 16,
-		color: "#333",
 	},
 	sentMessageText: {
-		color: "black",
+		color: "#000",
 	},
 	messageTextWeb: {
-		marginTop: -6,
-		marginBottom: 5,
+		lineHeight: 24,
 	},
 	messageTextMobile: {
-		marginTop: -20,
-		paddingTop: 15,
+		lineHeight: 20,
 	},
 	messageTime: {
 		fontSize: 12,
-		marginBottom: -4,
-		color: "black",
-		alignSelf: "flex-end",
+		color: "#777",
+	},
+	dropdownButton: {
+		margin: 0,
+	},
+	dropdownBox: {
+		backgroundColor: "#FFF",
+		borderRadius: 8,
+		marginHorizontal: 5,
+		padding: 8,
+		elevation: 4,
+	},
+	dropdownOption: {
+		paddingVertical: 4,
+	},
+	dropdownOptionText: {
+		fontSize: 16,
+	},
+	replyMessageText: {
+		backgroundColor: "#f5f5f5", // Customize the background color for reply messages
+		padding: 8,
+		borderRadius: 4,
+		marginTop: 8,
 	},
 });
 

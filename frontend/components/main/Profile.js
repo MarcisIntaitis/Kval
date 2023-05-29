@@ -23,6 +23,7 @@ function Profile(props) {
 	const [user, setUser] = useState(null);
 	const [following, setFollowing] = useState(false);
 	const [displayNameInput, setDisplayNameInput] = useState("");
+	const [bioInfo, setBioInfo] = useState("");
 	const [profilePicURL, setProfilePicURL] = useState("");
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [image, setImage] = useState(null);
@@ -85,8 +86,6 @@ function Profile(props) {
 			.get()
 			.then((doc) => {
 				const userData = doc.data();
-
-				// Get the current profile picture name from the url
 				const currentProfilePic = userData.profilePic;
 
 				var picURL = currentProfilePic.substring(
@@ -94,14 +93,11 @@ function Profile(props) {
 				);
 				const extractedString = picURL.split("?")[0];
 
-				// Delete the old profile picture if it exists and its date is older than the new picture
-				if (currentProfilePic) {
-					// Delete the old profile picture from storage
+				if (currentProfilePic !== "") {
 					storageRef
 						.child(`profilePictures/${userId}/${extractedString}`)
 						.delete()
 						.then(() => {
-							// Update the profile picture and date reference in Firestore
 							firebase
 								.firestore()
 								.collection("users")
@@ -120,7 +116,6 @@ function Profile(props) {
 							console.log("Error deleting old profile picture:", error);
 						});
 				} else {
-					// If there is no current profile picture or the current picture is up to date, directly update the profile picture and date reference in Firestore
 					firebase
 						.firestore()
 						.collection("users")
@@ -210,6 +205,20 @@ function Profile(props) {
 			.catch((error) => {
 				console.log("Error updating name:", error);
 			});
+
+		firebase
+			.firestore()
+			.collection("users")
+			.doc(props.route.params.uid)
+			.update({ bio: bioInfo })
+			.then(() => {
+				console.log("Bio updated successfully");
+				setUser((prevUser) => ({ ...prevUser, bio: bioInfo }));
+				setIsModalVisible(false);
+			})
+			.catch((error) => {
+				console.log("Error updating bio:", error);
+			});
 	};
 
 	const handleSave = () => {
@@ -255,14 +264,27 @@ function Profile(props) {
 						style={styles.profilePicture}
 						source={{ uri: user.profilePic }}
 					/>
-					<Text style={styles.userName}>{user.name}</Text>
+					<View style={styles.userInfo}>
+						<Text style={styles.userName}>{user.name}</Text>
+						<Text style={styles.userBio}>{user.bio}</Text>
+					</View>
 
 					{props.route.params.uid !== firebase.auth().currentUser.uid ? (
 						<View style={styles.followButtons}>
 							{following ? (
-								<Button title="Unfollow" onPress={() => onUnfollow()} />
+								<TouchableOpacity
+									onPress={() => onUnfollow()}
+									style={styles.followButtons}
+								>
+									<Text style={styles.followButtonText}>FOLLOWING</Text>
+								</TouchableOpacity>
 							) : (
-								<Button title="Follow" onPress={() => onFollow()} />
+								<TouchableOpacity
+									onPress={() => onFollow()}
+									style={styles.followButtons}
+								>
+									<Text style={styles.followButtonText}>FOLLOW</Text>
+								</TouchableOpacity>
 							)}
 						</View>
 					) : (
@@ -311,6 +333,14 @@ function Profile(props) {
 								value={displayNameInput}
 								placeholder={user.name}
 								onChangeText={(text) => setDisplayNameInput(text)}
+							/>
+						</View>
+						<View style={styles.modalItem}>
+							<TextInput
+								style={styles.modalInput}
+								value={bioInfo}
+								placeholder={user.bio === "" ? "Enter your bio" : user.bio}
+								onChangeText={(text) => setBioInfo(text)}
 							/>
 						</View>
 
@@ -406,6 +436,13 @@ const styles = StyleSheet.create({
 		maxWidth: 900,
 		backgroundColor: "#424242",
 	},
+	userInfo: {
+		flex: 1,
+		maxWidth: 600,
+		width: "100%",
+		flexGrow: 1,
+		flexDirection: "column",
+	},
 	containerInfo: {
 		flexDirection: "row",
 		marginHorizontal: 20,
@@ -415,6 +452,12 @@ const styles = StyleSheet.create({
 	userName: {
 		fontSize: 18,
 		fontWeight: "bold",
+		marginBottom: 8,
+		color: "white",
+	},
+	userBio: {
+		maxWidth: "90%",
+		fontSize: 14,
 		marginBottom: 8,
 		color: "white",
 	},
@@ -507,7 +550,15 @@ const styles = StyleSheet.create({
 		alignSelf: "center",
 	},
 	followButtons: {
-		position: "absolute",
-		right: 20,
+		width: 90,
+		height: 30,
+		justifyContent: "center",
+		alignItems: "center",
+		borderRadius: 10,
+		backgroundColor: "#9ade7c",
+	},
+	followButtonText: {
+		fontWeight: 600,
+		color: "#333",
 	},
 });
