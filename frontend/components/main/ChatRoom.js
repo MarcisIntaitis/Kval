@@ -25,6 +25,7 @@ function ChatRoom() {
 	const [users, setUsers] = useState({});
 	const [userProfilePics, setUserProfilePics] = useState({}); // State variable to store user profile pictures
 	const [formValue, setFormValue] = useState("");
+	const [replyMessage, setReplyMessage] = useState(null);
 
 	useEffect(() => {
 		// Fetch user data from Firebase
@@ -53,13 +54,27 @@ function ChatRoom() {
 			const { uid, photoURL } = firebase.auth().currentUser;
 			const messageId = uuidv4();
 
-			await messagesRef.doc(messageId).set({
+			const newMessage = {
 				id: messageId,
 				text: formValue,
 				createdAt: serverTimestamp(),
 				uid,
 				photoURL,
-			});
+			};
+
+			if (replyMessage) {
+				// Include the replied message information in the message
+				newMessage.replyTo = {
+					id: replyMessage.id,
+					text: replyMessage.text,
+					displayName: replyMessage.displayName, // Pass the displayName of the user being replied to
+				};
+
+				// Clear the reply message after sending
+				setReplyMessage(null);
+			}
+
+			await messagesRef.doc(messageId).set(newMessage);
 
 			setFormValue("");
 			dummy.current?.scrollToEnd({ animated: true });
@@ -104,6 +119,7 @@ function ChatRoom() {
 								message={message}
 								displayName={getDisplayName(message.uid)}
 								photoURL={getProfilePic(message.uid)}
+								setReplyMessage={setReplyMessage}
 							/>
 						))}
 				</ScrollView>

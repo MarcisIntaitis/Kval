@@ -19,7 +19,6 @@ const ChatMessage = React.memo(function ChatMessage(props) {
 	const { displayName, photoURL } = props;
 	const [roles, setRoles] = useState("");
 	const currentUserUID = firebase.auth().currentUser.uid;
-	const [replyMessageId, setReplyMessageId] = useState(null);
 
 	const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 	const fetchRoleData = async () => {
@@ -61,7 +60,6 @@ const ChatMessage = React.memo(function ChatMessage(props) {
 		{
 			maxWidth: (2 / 3) * windowWidth,
 		},
-		replyMessageId === props.message.id && styles.replyMessageText,
 	];
 
 	const handleToggleDropdown = async () => {
@@ -77,8 +75,16 @@ const ChatMessage = React.memo(function ChatMessage(props) {
 		setIsDropdownVisible(false);
 	};
 
-	const handleReplyMessage = (id) => {
-		setReplyMessageId(id);
+	const handleReplyMessage = () => {
+		// Set the replied message in the ChatRoom component
+		props.setReplyMessage({
+			id: props.message.id,
+			text: props.message.text,
+			displayName: props.displayName, // Pass the displayName of the user being replied to
+		});
+
+		// Implement any additional UI changes for the reply functionality if needed
+
 		setIsDropdownVisible(false);
 	};
 
@@ -98,17 +104,22 @@ const ChatMessage = React.memo(function ChatMessage(props) {
 				style={styles.dropdownButton}
 			>
 				<View style={messageBubbleStyle}>
+					{props.message.replyTo && (
+						<View style={styles.replyMessageContainer}>
+							<Text style={styles.replyMessageCreator}>
+								Replying to: {props.message.replyTo.displayName}
+							</Text>
+							<Text style={styles.replyMessageText}>
+								{props.message.replyTo.text}
+							</Text>
+						</View>
+					)}
 					<View style={styles.messageHeader}>
 						<Text style={styles.messageUsername}>{displayName}</Text>
 					</View>
 					<Text style={messageTextStyle}>{text}</Text>
 					<Text style={styles.messageTime}>{messageTime}</Text>
 				</View>
-				{replyMessageId === props.message.id && (
-					<Text style={styles.replyMessageText}>
-						Replying to: {props.message.text}
-					</Text>
-				)}
 			</TouchableOpacity>
 			{isDropdownVisible && (
 				<View style={styles.dropdownContainerStyle}>
@@ -280,11 +291,25 @@ const styles = StyleSheet.create({
 	dropdownOptionText: {
 		fontSize: 16,
 	},
+	replyMessageContainer: {
+		flex: 1,
+		flexDirection: "column",
+		backgroundColor: "#bae0de",
+		borderRadius: 8,
+		paddingHorizontal: 12,
+		paddingVertical: 6,
+		marginBottom: 6,
+	},
+	replyMessageCreator: {
+		fontSize: 14,
+		color: "#000",
+		fontStyle: "italic",
+		fontWeight: "bold",
+	},
 	replyMessageText: {
-		backgroundColor: "#f5f5f5", // Customize the background color for reply messages
-		padding: 8,
-		borderRadius: 4,
-		marginTop: 8,
+		fontSize: 12,
+		color: "#000",
+		fontStyle: "italic",
 	},
 });
 
