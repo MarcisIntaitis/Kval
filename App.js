@@ -18,16 +18,13 @@ import SaveScreen from "./frontend/components/main/Save";
 import CommentScreen from "./frontend/components/main/Comment";
 import FullscreenPictureScreen from "./frontend/components/main/FullscreenPicture";
 import ChatScreen from "./frontend/components/main/Chat";
-
-import {
-	API_KEY,
-	AUTH_DOMAIN,
-	PROJECT_ID,
-	STORAGE_BUCKET,
-	MESSAGING_SENDER_ID,
-	APP_ID,
-	MEASUREMENT_ID,
-} from "./config";
+import API_KEY from "./config.json";
+import AUTH_DOMAIN from "./config.json";
+import PROJECT_ID from "./config.json";
+import STORAGE_BUCKET from "./config.json";
+import MESSAGING_SENDER_ID from "./config.json";
+import APP_ID from "./config.json";
+import MEASUREMENT_ID from "./config.json";
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
