@@ -28,21 +28,20 @@ function ChatRoom() {
 	const [replyMessage, setReplyMessage] = useState(null);
 
 	useEffect(() => {
-		// Fetch user data from Firebase
 		firebase
 			.firestore()
 			.collection("users")
 			.get()
 			.then((snapshot) => {
 				const userData = {};
-				const profilePics = {}; // Temporary object to store profile pictures
+				const profilePics = {};
 				snapshot.forEach((doc) => {
 					const data = doc.data();
 					userData[doc.id] = data;
 					profilePics[doc.id] = data.profilePic;
 				});
 				setUsers(userData);
-				setUserProfilePics(profilePics); // Store the profile pictures
+				setUserProfilePics(profilePics);
 			})
 			.catch((error) => {
 				console.log("Error fetching user data:", error);
@@ -63,14 +62,11 @@ function ChatRoom() {
 			};
 
 			if (replyMessage) {
-				// Include the replied message information in the message
 				newMessage.replyTo = {
 					id: replyMessage.id,
 					text: replyMessage.text,
-					displayName: replyMessage.displayName, // Pass the displayName of the user being replied to
+					displayName: replyMessage.displayName,
 				};
-
-				// Clear the reply message after sending
 				setReplyMessage(null);
 			}
 
@@ -124,6 +120,23 @@ function ChatRoom() {
 						))}
 				</ScrollView>
 
+				{replyMessage && (
+					<View style={styles.replyContainer}>
+						<View style={styles.replyContent}>
+							<Text style={styles.replyText}>
+								Replying to: {replyMessage.displayName}
+							</Text>
+							<Text style={styles.replyMessageText}>{replyMessage.text}</Text>
+							<TouchableOpacity
+								style={styles.cancelReplyButton}
+								onPress={() => setReplyMessage(null)}
+							>
+								<Text style={styles.buttonText}>Cancel Reply</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				)}
+
 				<View style={styles.inputContainer}>
 					<TextInput
 						value={formValue}
@@ -154,6 +167,7 @@ const styles = StyleSheet.create({
 		width: "100%",
 		maxWidth: 900,
 		backgroundColor: "#424242",
+		paddingTop: 20,
 	},
 	scrollViewContent: {
 		paddingHorizontal: 16,
@@ -186,6 +200,33 @@ const styles = StyleSheet.create({
 		borderRadius: 20,
 		alignItems: "center",
 		justifyContent: "center",
+	},
+	cancelReplyButton: {
+		backgroundColor: "#9ade7c",
+		paddingVertical: 8,
+		paddingHorizontal: 16,
+		width: 120,
+		borderRadius: 20,
+		alignItems: "center",
+		justifyContent: "center",
+		alignSelf: "center",
+		marginVertical: 8,
+	},
+	replyContainer: {
+		maxWidth: 400,
+		width: "100%",
+		alignSelf: "center",
+		borderRadius: 20,
+		backgroundColor: "#727272",
+	},
+	replyContent: {
+		paddingHorizontal: 16,
+	},
+	replyText: {
+		paddingVertical: 8,
+		fontSize: 16,
+		fontWeight: "bold",
+		fontStyle: "italic",
 	},
 });
 

@@ -195,11 +195,7 @@ const Feed = ({ following, feed, usersFollowingLoaded, navigation }) => {
 									size={26}
 								/>
 							</TouchableOpacity>
-							<Text style={styles.likesCount}>
-								{item.likesCount === 0
-									? (item.likesCount = undefined)
-									: item.likesCount}
-							</Text>
+							<Text style={styles.likesCount}>{item.likesCount}</Text>
 							<TouchableOpacity
 								onPress={() =>
 									navigation.navigate("Comment", {

@@ -76,14 +76,11 @@ const ChatMessage = React.memo(function ChatMessage(props) {
 	};
 
 	const handleReplyMessage = () => {
-		// Set the replied message in the ChatRoom component
 		props.setReplyMessage({
 			id: props.message.id,
 			text: props.message.text,
-			displayName: props.displayName, // Pass the displayName of the user being replied to
+			displayName: props.displayName,
 		});
-
-		// Implement any additional UI changes for the reply functionality if needed
 
 		setIsDropdownVisible(false);
 	};
@@ -253,7 +250,6 @@ const styles = StyleSheet.create({
 	messageHeader: {
 		flexDirection: "row",
 		alignItems: "center",
-		marginBottom: 4,
 	},
 	messageUsername: {
 		fontWeight: "bold",
@@ -279,9 +275,9 @@ const styles = StyleSheet.create({
 		margin: 0,
 	},
 	dropdownBox: {
-		backgroundColor: "#FFF",
-		borderRadius: 8,
-		marginHorizontal: 5,
+		backgroundColor: "#d9d9d9",
+		borderRadius: 5,
+		marginHorizontal: 10,
 		padding: 8,
 		elevation: 4,
 	},

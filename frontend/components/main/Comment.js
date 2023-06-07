@@ -235,7 +235,6 @@ const styles = StyleSheet.create({
 		borderRadius: 4,
 		paddingHorizontal: 10,
 		marginRight: 8,
-		color: "#333",
 	},
 });
 

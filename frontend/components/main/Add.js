@@ -2,6 +2,7 @@ import { Camera } from "expo-camera";
 import { useState, useEffect } from "react";
 import { StyleSheet, Text, Button, View, Image } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function Add({ navigation }) {
 	const [hasCameraPermission, setHasCameraPermission] = useState(null);
@@ -106,8 +107,7 @@ export default function Add({ navigation }) {
 								ref={(ref) => setCamera(ref)}
 							/>
 						</View>
-						<Button
-							title="Flip Camera"
+						<TouchableOpacity
 							onPress={() =>
 								setCameraType(
 									cameraType === Camera.Constants.Type.back
@@ -116,18 +116,19 @@ export default function Add({ navigation }) {
 								)
 							}
 							style={styles.button}
-						/>
+						>
+							<Text>Flip Camera</Text>
+						</TouchableOpacity>
 
-						<Button
-							title="Take Picture"
+						<TouchableOpacity
 							onPress={() => takePicture()}
 							style={styles.button}
-						/>
-						<Button
-							title="Pick from gallery"
-							onPress={() => pickImage()}
-							style={styles.button}
-						/>
+						>
+							<Text>Take Picture</Text>
+						</TouchableOpacity>
+						<TouchableOpacity onPress={() => pickImage()} style={styles.button}>
+							<Text>Pick from gallery</Text>
+						</TouchableOpacity>
 					</View>
 				</View>
 			)}
@@ -137,8 +138,13 @@ export default function Add({ navigation }) {
 						<View style={styles.camContainer}>
 							{image && <Image source={{ uri: image }} style={styles.camera} />}
 						</View>
-						<Button title="Save" onPress={handleSave} style={styles.button} />
-						<Button title="Back" onPress={handleBack} style={styles.button} />
+						<TouchableOpacity onPress={handleSave} style={styles.button}>
+							<Text>Save</Text>
+						</TouchableOpacity>
+
+						<TouchableOpacity onPress={handleBack} style={styles.button}>
+							<Text>Back</Text>
+						</TouchableOpacity>
 					</View>
 				</View>
 			)}
@@ -154,7 +160,6 @@ const styles = StyleSheet.create({
 		backgroundColor: "#333",
 	},
 
-	savedImageContainer: {},
 	addContainer: {
 		marginTop: 20,
 		flex: 1,
@@ -176,7 +181,13 @@ const styles = StyleSheet.create({
 		aspectRatio: 1,
 	},
 	button: {
-		marginVertical: 10,
-		width: 200,
+		backgroundColor: "#9ade7c",
+		paddingVertical: 8,
+		paddingHorizontal: 16,
+		marginVertical: 5,
+		width: 300,
+		borderRadius: 20,
+		alignItems: "center",
+		alignSelf: "center",
 	},
 });
