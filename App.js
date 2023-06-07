@@ -18,25 +18,19 @@ import SaveScreen from "./frontend/components/main/Save";
 import CommentScreen from "./frontend/components/main/Comment";
 import FullscreenPictureScreen from "./frontend/components/main/FullscreenPicture";
 import ChatScreen from "./frontend/components/main/Chat";
-import API_KEY from "./config.json";
-import AUTH_DOMAIN from "./config.json";
-import PROJECT_ID from "./config.json";
-import STORAGE_BUCKET from "./config.json";
-import MESSAGING_SENDER_ID from "./config.json";
-import APP_ID from "./config.json";
-import MEASUREMENT_ID from "./config.json";
+import config from "./config.json";
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
 // Firebase config info for connecting to the API and ensuring Firebase works
 const firebaseConfig = {
-	apiKey: API_KEY,
-	authDomain: AUTH_DOMAIN,
-	projectId: PROJECT_ID,
-	storageBucket: STORAGE_BUCKET,
-	messagingSenderId: MESSAGING_SENDER_ID,
-	appId: APP_ID,
-	measurementId: MEASUREMENT_ID,
+	apiKey: config.API_KEY,
+	authDomain: config.AUTH_DOMAIN,
+	projectId: config.PROJECT_ID,
+	storageBucket: config.STORAGE_BUCKET,
+	messagingSenderId: config.MESSAGING_SENDER_ID,
+	appId: config.APP_ID,
+	measurementId: config.MEASUREMENT_ID,
 };
 
 if (firebase.apps.length === 0) {
