@@ -127,6 +127,8 @@ function ChatRoom() {
 								Replying to: {replyMessage.displayName}
 							</Text>
 							<Text style={styles.replyMessageText}>{replyMessage.text}</Text>
+						</View>
+						<View style={styles.cancelButtonContainer}>
 							<TouchableOpacity
 								style={styles.cancelReplyButton}
 								onPress={() => setReplyMessage(null)}
@@ -208,19 +210,25 @@ const styles = StyleSheet.create({
 		width: 120,
 		borderRadius: 20,
 		alignItems: "center",
+	},
+	cancelButtonContainer: {
 		justifyContent: "center",
-		alignSelf: "center",
-		marginVertical: 8,
+		alignItems: "flex-end",
+		marginLeft: 30,
+		marginRight: 15,
 	},
 	replyContainer: {
-		maxWidth: 400,
-		width: "100%",
+		width: "auto",
 		alignSelf: "center",
 		borderRadius: 20,
 		backgroundColor: "#727272",
+		alignSelf: "flex-end",
+		marginRight: 10,
+		flexDirection: "row",
 	},
 	replyContent: {
 		paddingHorizontal: 16,
+		paddingBottom: 16,
 	},
 	replyText: {
 		paddingVertical: 8,
