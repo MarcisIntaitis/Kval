@@ -38,9 +38,7 @@ export class Login extends Component {
 		return (
 			<View style={styles.container}>
 				<View style={styles.loginContainer}>
-					<View style={styles.loginContainerText}>
-						<Text style={styles.loginText}> Log in</Text>
-					</View>
+					<Text style={styles.loginText}> Log in </Text>
 					<TextInput
 						style={styles.inputContainer}
 						placeholder="email"
@@ -106,8 +104,8 @@ const styles = StyleSheet.create({
 	inputContainer: {
 		marginHorizontal: 10,
 		width: "100%",
-		maxWidth: 400,
-		height: 50,
+		maxWidth: 300,
+		height: 40,
 		backgroundColor: "#D9D9D9",
 		borderRadius: 20,
 		paddingLeft: 10,

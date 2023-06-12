@@ -100,7 +100,7 @@ const App = () => {
 							<Stack.Screen
 								name="Main"
 								component={MainScreen}
-								options={{ headerTitle: "App name" }} // Set the header title
+								options={{ headerTitle: "Mesa" }} // Set the header title
 							/>
 							<Stack.Screen
 								name="Add"

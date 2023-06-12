@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "mobapp",
+    "name": "Mesa",
     "slug": "mobapp",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -15,7 +15,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pectha.mobapp"
     },
     "android": {
       "adaptiveIcon": {

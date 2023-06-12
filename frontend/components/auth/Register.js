@@ -50,9 +50,7 @@ export class Register extends Component {
 		return (
 			<View style={styles.container}>
 				<View style={styles.registerContainer}>
-					<View style={styles.registerContainerText}>
-						<Text style={styles.registerText}>Sign up</Text>
-					</View>
+					<Text style={styles.registerText}>Sign up</Text>
 					<TextInput
 						placeholder="name"
 						onChangeText={(name) => this.setState({ name })}
@@ -122,8 +120,8 @@ const styles = StyleSheet.create({
 	},
 	inputContainer: {
 		width: "100%",
-		maxWidth: 400,
-		height: 50,
+		maxWidth: 300,
+		height: 40,
 		backgroundColor: "#D9D9D9",
 		borderRadius: 20,
 		paddingLeft: 10,

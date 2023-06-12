@@ -5,6 +5,7 @@ export default function Landing({ navigation }) {
 	return (
 		<View style={styles.container}>
 			<View style={styles.landingContainer}>
+				<Text style={styles.landingText}> MESA </Text>
 				<TouchableOpacity
 					style={styles.buttonStyle}
 					onPress={() => navigation.navigate("Login")}
@@ -36,6 +37,12 @@ const styles = StyleSheet.create({
 		width: "100%",
 		maxWidth: 600,
 		backgroundColor: "#424242",
+	},
+	landingText: {
+		color: "#CFCFCF",
+		fontSize: 48,
+		fontWeight: "bold",
+		paddingBottom: 15,
 	},
 	buttonStyle: {
 		backgroundColor: "#9ade7c",
