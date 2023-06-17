@@ -13,22 +13,17 @@ import { connect } from "react-redux";
 import firebase from "firebase/compat/app";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
-function Feed(props) {
+const Feed = ({ following, feed, usersFollowingLoaded, navigation }) => {
 	const [visiblePosts, setVisiblePosts] = useState([]);
 	const [allPosts, setAllPosts] = useState([]);
 
 	useEffect(() => {
-		if (
-			props.usersFollowingLoaded === props.following.length &&
-			props.following.length !== 0
-		) {
-			props.feed.sort(function (x, y) {
-				return y.creation - x.creation;
-			});
-			setAllPosts(props.feed);
-			setVisiblePosts(props.feed.slice(0, 2)); // Initially show 10 posts
+		if (usersFollowingLoaded === following.length && following.length !== 0) {
+			feed.sort((x, y) => y.creation - x.creation);
+			setAllPosts(feed);
+			setVisiblePosts(feed.slice(0, 2)); // Initially show 2 posts
 		}
-	}, [props.usersFollowingLoaded, props.feed]);
+	}, [usersFollowingLoaded, feed]);
 
 	const loadMorePosts = () => {
 		const currentVisibleCount = visiblePosts.length;
@@ -40,94 +35,53 @@ function Feed(props) {
 	};
 
 	const onLikePress = (userId, postId) => {
-		firebase
-			.firestore()
-			.collection("posts")
-			.doc(userId)
-			.collection("userPosts")
-			.doc(postId)
-			.collection("likes")
-			.doc(firebase.auth().currentUser.uid)
-			.set({});
+		try {
+			// const updatedLikes = [...likes, firebase.auth().currentUser.uid];
+			// setLikes(updatedLikes);
+			firebase
+				.firestore()
+				.collection("posts")
+				.doc(userId)
+				.collection("userPosts")
+				.doc(postId)
+				.collection("likes")
+				.doc(firebase.auth().currentUser.uid)
+				.set({});
+		} catch (error) {
+			console.log("Error liking post:", error);
+		}
 	};
 
 	const onDislikePress = (userId, postId) => {
-		firebase
-			.firestore()
-			.collection("posts")
-			.doc(userId)
-			.collection("userPosts")
-			.doc(postId)
-			.collection("likes")
-			.doc(firebase.auth().currentUser.uid)
-			.delete();
+		try {
+			// const updatedLikes = likes.filter(
+			// 	(userId) => userId !== firebase.auth().currentUser.uid
+			// );
+			// setLikes(updatedLikes);
+			firebase
+				.firestore()
+				.collection("posts")
+				.doc(userId)
+				.collection("userPosts")
+				.doc(postId)
+				.collection("likes")
+				.doc(firebase.auth().currentUser.uid)
+				.delete();
+		} catch (error) {
+			console.log("Error disliking post:", error);
+		}
 	};
-
-	const renderPost = (item) => (
-		<View style={styles.postContainer} key={item.id}>
-			<TouchableOpacity
-				style={styles.postHeader}
-				onPress={() =>
-					props.navigation.navigate("Profile", { uid: item.user.uid })
-				}
-			>
-				<Image
-					style={styles.profilePicture}
-					source={{ uri: item.user.profilePic }}
-				/>
-				<Text style={styles.userName}>{item.user && item.user.name}</Text>
-			</TouchableOpacity>
-			<Image
-				style={[
-					styles.image,
-					Platform.OS === "web" && styles.webImage, // Apply different style for web image
-				]}
-				source={{ uri: item.downloadURL }}
-			/>
-			<View style={styles.postFooter}>
-				<TouchableOpacity
-					onPress={() => {
-						item.currentUserLike
-							? onDislikePress(item.user.uid, item.id, (item.likesCount -= 1))
-							: onLikePress(
-									item.user.uid,
-									item.id,
-									item.likesCount === undefined
-										? (item.likesCount = 1)
-										: (item.likesCount += 1)
-							  );
-					}}
-				>
-					<MaterialCommunityIcons
-						name={item.currentUserLike ? "heart" : "heart-outline"}
-						color={item.currentUserLike ? "#FF0000" : "#333333"}
-						size={26}
-					/>
-				</TouchableOpacity>
-				<Text style={styles.likesCount}>{item.likesCount}</Text>
-				<TouchableOpacity
-					onPress={() =>
-						props.navigation.navigate("Comment", {
-							postId: item.id,
-							uid: item.user.uid,
-						})
-					}
-				>
-					<MaterialCommunityIcons
-						name="comment-outline"
-						color="#007AFF"
-						size={26}
-					/>
-				</TouchableOpacity>
-			</View>
-			<Text style={styles.caption}>{item.caption}</Text>
-		</View>
-	);
 
 	return (
 		<View style={styles.container}>
+			{visiblePosts.length === 0 ? (
+				<View style={styles.noPostsContainer}>
+					<Text style={styles.noPostsText}>There are no posts to show</Text>
+				</View>
+			) : null}
 			<ScrollView
 				contentContainerStyle={styles.feed}
+				scrollEventThrottle={200}
 				onScroll={(event) => {
 					const offsetY = event.nativeEvent.contentOffset.y;
 					const contentHeight = event.nativeEvent.contentSize.height;
@@ -135,13 +89,68 @@ function Feed(props) {
 						loadMorePosts();
 					}
 				}}
-				scrollEventThrottle={400}
 			>
-				{visiblePosts.map(renderPost)}
+				{visiblePosts.map((item) => (
+					<View style={styles.postContainer} key={item.id}>
+						<TouchableOpacity
+							style={styles.postHeader}
+							onPress={() =>
+								navigation.navigate("Profile", { uid: item.user.uid })
+							}
+						>
+							<Image
+								style={styles.profilePicture}
+								source={{ uri: item.user.profilePic }}
+							/>
+							<Text style={styles.userName}>{item.user && item.user.name}</Text>
+						</TouchableOpacity>
+						<Image
+							style={[styles.image, Platform.OS === "web" && styles.webImage]}
+							source={{ uri: item.downloadURL }}
+						/>
+						<View style={styles.postFooter}>
+							<TouchableOpacity
+								onPressIn={() => {
+									item.currentUserLike
+										? (onDislikePress(item.user.uid, item.id),
+										  item.likesCount === 1
+												? (item.likesCount = undefined)
+												: (item.likesCount -= 1))
+										: (onLikePress(item.user.uid, item.id),
+										  item.likesCount === undefined
+												? (item.likesCount = 1)
+												: (item.likesCount += 1));
+								}}
+							>
+								<MaterialCommunityIcons
+									name={item.currentUserLike ? "heart" : "heart-outline"}
+									color={item.currentUserLike ? "#FF0000" : "#333333"}
+									size={26}
+								/>
+							</TouchableOpacity>
+							<Text style={styles.likesCount}>{item.likesCount}</Text>
+							<TouchableOpacity
+								onPress={() =>
+									navigation.navigate("Comment", {
+										postId: item.id,
+										uid: item.user.uid,
+									})
+								}
+							>
+								<MaterialCommunityIcons
+									name="comment-outline"
+									color="#007AFF"
+									size={26}
+								/>
+							</TouchableOpacity>
+						</View>
+						<Text style={styles.caption}>{item.caption}</Text>
+					</View>
+				))}
 			</ScrollView>
 		</View>
 	);
-}
+};
 
 const mapStateToProps = (store) => ({
 	currentUser: store.userState.currentUser,
@@ -164,6 +173,27 @@ const styles = StyleSheet.create({
 		paddingBottom: 16,
 		justifyContent: "center",
 		alignItems: "center",
+	},
+	noPostsContainer: {
+		marginHorizontal: 16,
+		maxWidth: 600,
+		width: "100%",
+		height: 120,
+		borderRadius: 8,
+		backgroundColor: "#424242",
+		shadowColor: "#000000",
+		shadowOpacity: 0.1,
+		shadowRadius: 2,
+		elevation: 2,
+		justifyContent: "center",
+		alignSelf: "center",
+		alignItems: "center",
+	},
+	noPostsText: {
+		fontSize: 24,
+		fontWeight: "bold",
+		paddingLeft: 10,
+		color: "#939393",
 	},
 	postContainer: {
 		maxWidth: 1100,

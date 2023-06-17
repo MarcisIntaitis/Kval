@@ -14,19 +14,22 @@ export default function Search(props) {
 	const [search, setSearch] = useState("");
 
 	const fetchUsers = () => {
-		firebase
-			.firestore()
-			.collection("users")
-			.where("name", ">=", search)
-			.get()
-			.then((snapshot) => {
-				let users = snapshot.docs.map((doc) => {
-					const data = doc.data();
-					const id = doc.id;
-					return { id, ...data };
-				});
-				setUsers(users);
+		let query = firebase.firestore().collection("users");
+
+		if (search.trim() !== "") {
+			query = query.where("name", ">=", search).limit(1);
+		}
+
+		query.get().then((snapshot) => {
+			let users = [];
+			snapshot.docs.forEach((doc) => {
+				const data = doc.data();
+				const id = doc.id;
+				const user = { id, ...data };
+				users.push(user);
 			});
+			setUsers(users);
+		});
 	};
 
 	return (
